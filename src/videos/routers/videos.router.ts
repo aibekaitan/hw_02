@@ -15,8 +15,8 @@ export const videosRouter = Router({});
 
 videosRouter
   .get('', (req: Request, res: Response<VideoListOutput>) => {
-    const drivers = mapToVideoListOutput(db.videos);
-    res.status(200).send(drivers);
+    const videos = mapToVideoListOutput(db.videos);
+    res.status(200).send(videos);
   })
 
   .get('/:id', (req: Request, res: Response) => {
