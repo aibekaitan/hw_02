@@ -1,169 +1,94 @@
 import request from 'supertest';
 import express from 'express';
 import { setupApp } from '../../../src/setup-app';
-import { VideoInput } from '../../../src/videos/dto/video.input';
 import { HttpStatus } from '../../../src/core/types/http-statuses';
-import { Video, Resolutions } from '../../../src/videos/types/video';
-import { ResourceType } from '../../../src/core/types/resource-type';
-import { UpdateVideoInputModel } from '../../../src/videos/dto/video-update.input';
-import { VideoOutput } from '../../../src/videos/dto/video.output';
+import { Resolutions } from '../../../src/videos/types/video';
 
-describe('Driver API', () => {
+describe('Video API', () => {
   const app = express();
   setupApp(app);
 
-  const testVideoData: VideoInput = {
-    type: ResourceType.Videos,
-    attributes: {
-      title: 'My First Video',
-      author: 'John Doe',
-      canBeDownloaded: true,
-      minAgeRestriction: null,
-      createdAt: new Date(),
-      publicationDate: new Date(),
-      availableResolutions: [Resolutions.P144, Resolutions.P360],
-    },
+  const testVideoData = {
+    title: 'My First Video',
+    author: 'John Doe',
+    availableResolutions: [Resolutions.P144, Resolutions.P360],
+  };
+
+  const testUpdateVideoData = {
+    title: 'Updated Video Title',
+    author: 'Updated Author',
+    availableResolutions: [Resolutions.P144, Resolutions.P720],
+    canBeDownloaded: true,
+    minAgeRestriction: 16,
+    publicationDate: new Date('2025-11-09T00:00:00Z').toISOString(),
   };
 
   beforeAll(async () => {
-    await request(app)
-      .delete('/api/testing/all-data')
-      .expect(HttpStatus.NoContent);
+    await request(app).delete('/testing/all-data').expect(204);
   });
 
-  it('should create video; POST /api/videos', async () => {
-    const newVideo: VideoInput = {
-      ...testVideoData,
-      attributes: {
-        ...testVideoData.attributes,
-        title: 'Back-end',
-      },
-    };
-
-    await request(app)
-      .post('/api/videos')
-      .send({ data: newVideo })
-      .expect(HttpStatus.Created);
+  it('should create video; POST /videos', async () => {
+    await request(app).post('/videos').send(testVideoData).expect(201);
   });
 
-  it('should return videos list; GET /api/videos', async () => {
-    const newVideo1: VideoInput = {
-      ...testVideoData,
-      attributes: {
-        ...testVideoData.attributes,
-        title: 'Another Video1',
-      },
-    };
-    const newVideo2: VideoInput = {
-      ...testVideoData,
-      attributes: {
-        ...testVideoData.attributes,
-        title: 'Another Video2',
-      },
-    };
+  it('should return videos list; GET /videos', async () => {
     await request(app)
-      .post('/api/videos')
-      .send({ data: newVideo1 })
-      .expect(HttpStatus.Created);
+      .post('/videos')
+      .send({ ...testVideoData, title: 'Video 1' })
+      .expect(201);
 
     await request(app)
-      .post('/api/videos')
-      .send({ data: newVideo2 })
-      .expect(HttpStatus.Created);
+      .post('/videos')
+      .send({ ...testVideoData, title: 'Video 2' })
+      .expect(201);
 
-    const videoListResponse = await request(app)
-      .get('/api/videos')
-      .expect(HttpStatus.Ok);
+    const response = await request(app).get('/videos').expect(200);
 
-    expect(videoListResponse.body.data).toBeInstanceOf(Array);
-    expect(videoListResponse.body.data.length).toBeGreaterThanOrEqual(2);
+    expect(response.body).toBeInstanceOf(Array);
+    expect(response.body.length).toBe(2);
   });
 
-  it('should return video by id; GET /api/videos/:id', async () => {
-    const newVideo: VideoInput = {
-      ...testVideoData,
-      attributes: {
-        ...testVideoData.attributes,
-        title: 'Another Video3',
-      },
-    };
+  it('should return video by id; GET /videos/:id', async () => {
     const createResponse = await request(app)
-      .post('/api/videos')
-      .send({ data: newVideo })
-      .expect(HttpStatus.Created);
+      .post('/videos')
+      .send({ ...testVideoData, title: 'Video 3' })
+      .expect(201);
 
     const getResponse = await request(app)
-      .get(`/api/videos/${createResponse.body.id}`)
-      .expect(HttpStatus.Ok);
+      .get(`/videos/${createResponse.body.id}`)
+      .expect(200);
 
-    expect(getResponse.body).toEqual({
-      ...createResponse.body,
-    });
+    expect(getResponse.body.title).toBe('Video 3');
+    expect(getResponse.body.canBeDownloaded).toBe(false);
   });
 
-  it('should update driver; PUT /api/videos/:id', async () => {
-    const newVideo: VideoInput = {
-      ...testVideoData,
-      attributes: {
-        ...testVideoData.attributes,
-        title: 'Another Video3',
-      },
-    };
+  it('should update video; PUT /videos/:id', async () => {
     const createResponse = await request(app)
-      .post('/api/videos')
-      .send({ data: newVideo })
-      .expect(HttpStatus.Created);
-    console.log('createResponse:', createResponse.body);
-    const videoUpdateData: UpdateVideoInputModel = {
-      data: {
-        id: createResponse.body.id,
-        type: ResourceType.Videos,
-        attributes: {
-          title: 'Updated Video Title',
-          author: 'Updated Author',
-          availableResolutions: [Resolutions.P144, Resolutions.P720],
-          canBeDownloaded: true,
-          minAgeRestriction: 16,
-          createdAt: new Date('2025-01-01T00:00:00Z'),
-          publicationDate: new Date('2025-11-09T00:00:00Z'),
-        },
-      },
-    };
+      .post('/videos')
+      .send(testVideoData)
+      .expect(201);
 
     await request(app)
-      .put(`/api/videos/${createResponse.body.id}`)
-      .send(videoUpdateData)
-      .expect(HttpStatus.NoContent);
+      .put(`/videos/${createResponse.body.id}`)
+      .send(testUpdateVideoData)
+      .expect(204);
 
-    const videoResponse = await request(app).get(
-      `/api/videos/${createResponse.body.id}`,
-    );
+    const getResponse = await request(app)
+      .get(`/videos/${createResponse.body.id}`)
+      .expect(200);
 
-    expect(videoResponse.body).toEqual({
-      ...videoUpdateData.data,
-    });
+    expect(getResponse.body.title).toBe('Updated Video Title');
+    expect(getResponse.body.minAgeRestriction).toBe(16);
   });
 
-  it('DELETE /api/videos/:id and check after NOT FOUND', async () => {
-    const newVideo: VideoInput = {
-      ...testVideoData,
-      attributes: {
-        ...testVideoData.attributes,
-        title: 'Another Video4',
-      },
-    };
+  it('DELETE /videos/:id and check after NOT FOUND', async () => {
     const createResponse = await request(app)
-      .post('/api/videos')
-      .send({ data: newVideo })
-      .expect(HttpStatus.Created);
+      .post('/videos')
+      .send({ ...testVideoData, title: 'Video 4' })
+      .expect(201);
 
-    await request(app)
-      .delete(`/api/videos/${createResponse.body.id}`)
-      .expect(HttpStatus.NoContent);
+    await request(app).delete(`/videos/${createResponse.body.id}`).expect(204);
 
-    const driverResponse = await request(app).get(
-      `/api/videos/${createResponse.body.id}`,
-    );
-    expect(driverResponse.status).toBe(HttpStatus.NotFound);
+    await request(app).get(`/videos/${createResponse.body.id}`).expect(404);
   });
 });

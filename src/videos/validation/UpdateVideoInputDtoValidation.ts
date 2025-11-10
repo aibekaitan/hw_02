@@ -2,36 +2,45 @@ import { VideoInput } from '../dto/video.input';
 import { Resolutions } from '../types/video';
 import { ValidationError } from '../../drivers/types/validationError';
 import { CreateVideoInputModel } from '../dto/video-create.input';
+import { UpdateVideoInputModel } from '../dto/video-update.input';
 
 // const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export const videoInputDtoValidation = (
-  data: VideoInput,
+export const updateVideoInputValidation = (
+  data: UpdateVideoInputModel,
 ): ValidationError[] => {
   const errors: ValidationError[] = [];
-  console.log('validation data: ', data);
+
   const {
     title,
     author,
     canBeDownloaded,
     minAgeRestriction,
-    createdAt,
     publicationDate,
     availableResolutions,
-  } = data.attributes;
+  } = data;
+
+  // Title validation
   if (
     !title ||
     typeof title !== 'string' ||
     title.trim().length < 2 ||
-    title.trim().length > 15
+    title.trim().length > 40
   ) {
-    errors.push({ field: 'name', message: 'Invalid name' });
+    errors.push({ field: 'title', message: 'Invalid title' });
   }
 
-  if (!author || typeof author !== 'string') {
+  // Author validation
+  if (
+    !author ||
+    typeof author !== 'string' ||
+    author.trim().length < 2 ||
+    author.trim().length > 20
+  ) {
     errors.push({ field: 'author', message: 'Invalid author' });
   }
 
+  // canBeDownloaded validation
   if (typeof canBeDownloaded !== 'boolean') {
     errors.push({
       field: 'canBeDownloaded',
@@ -39,6 +48,7 @@ export const videoInputDtoValidation = (
     });
   }
 
+  // minAgeRestriction validation
   if (
     minAgeRestriction !== null &&
     (typeof minAgeRestriction !== 'number' ||
@@ -51,10 +61,7 @@ export const videoInputDtoValidation = (
     });
   }
 
-  if (isNaN(new Date(createdAt).getTime())) {
-    errors.push({ field: 'createdAt', message: 'Invalid createdAt' });
-  }
-
+  // publicationDate validation
   if (
     typeof publicationDate !== 'string' ||
     isNaN(new Date(publicationDate).getTime())
@@ -65,27 +72,22 @@ export const videoInputDtoValidation = (
     });
   }
 
-  if (!Array.isArray(availableResolutions)) {
+  // availableResolutions validation
+  if (
+    !Array.isArray(availableResolutions) ||
+    availableResolutions.length === 0
+  ) {
     errors.push({
       field: 'availableResolutions',
-      message: 'availableResolutions must be array',
+      message: 'At least one resolution should be added',
     });
-  } else if (availableResolutions.length) {
-    const existingFeatures = Object.values(Resolutions);
-    if (
-      availableResolutions.length > existingFeatures.length ||
-      availableResolutions.length < 1
-    ) {
-      errors.push({
-        field: 'availableResolutions',
-        message: 'Invalid availableResolutions',
-      });
-    }
-    for (const feature of availableResolutions) {
-      if (!existingFeatures.includes(feature)) {
+  } else {
+    const validResolutions = Object.values(Resolutions);
+    for (const resolution of availableResolutions) {
+      if (!validResolutions.includes(resolution)) {
         errors.push({
-          field: 'Resolutions',
-          message: 'Invalid availableResolutions:' + feature,
+          field: 'availableResolutions',
+          message: 'Invalid resolution',
         });
         break;
       }

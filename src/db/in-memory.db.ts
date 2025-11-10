@@ -51,8 +51,8 @@ export const db = {
       availableResolutions: ['P144', 'P360'],
       canBeDownloaded: true,
       minAgeRestriction: null,
-      publicationDate: new Date(),
-      createdAt: new Date(),
+      publicationDate: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
     },
     {
       id: 2,
@@ -61,8 +61,8 @@ export const db = {
       availableResolutions: ['P720', 'P1080'],
       canBeDownloaded: false,
       minAgeRestriction: 18,
-      publicationDate: new Date(),
-      createdAt: new Date(),
+      publicationDate: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
     },
   ],
 };
