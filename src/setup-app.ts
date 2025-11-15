@@ -14,6 +14,8 @@ export const setupApp = (app: Express) => {
   app.use('/drivers', driversRouter);
   app.use('/videos', videosRouter);
   app.use('/testing', testingRouter);
+  app.use('/blogs', testingRouter);
+  app.use('/posts', testingRouter);
 
   setupSwagger(app);
   return app;

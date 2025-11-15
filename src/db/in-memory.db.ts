@@ -1,5 +1,7 @@
 import { Driver, VehicleFeature } from '../drivers/types/driver';
 import { Video, Resolutions } from '../videos/types/video';
+import { Blog } from '../blogs/types/blog';
+import { Post } from '../posts/types/post';
 
 export const db = {
   drivers: <Driver[]>[
@@ -63,6 +65,40 @@ export const db = {
       minAgeRestriction: 18,
       publicationDate: new Date().toISOString(),
       createdAt: new Date().toISOString(),
+    },
+  ],
+  blogs: <Blog[]>[
+    {
+      id: '1',
+      name: 'First Blog',
+      description: 'Description 1',
+      websiteUrl: 'https://example.com',
+    },
+    {
+      id: '2',
+      name: 'Second Blog',
+      description: 'Description 2',
+      websiteUrl: 'https://example2.com',
+    },
+  ],
+  posts: <Post[]>[
+    {
+      id: '1',
+      title: 'Introduction to TypeScript',
+      shortDescription: 'Learn the basics of TypeScript and its key features',
+      content:
+        'TypeScript is a strongly typed programming language that builds on JavaScript...',
+      blogId: 'blog-1',
+      blogName: 'Tech Insights',
+    },
+    {
+      id: '2',
+      title: 'Traditional Kazakh Beshbarmak',
+      shortDescription: 'Step-by-step recipe for making authentic Beshbarmak',
+      content:
+        'Beshbarmak is a traditional Kazakh dish made with boiled meat and noodles...',
+      blogId: 'blog-2',
+      blogName: 'Culinary Journey',
     },
   ],
 };
