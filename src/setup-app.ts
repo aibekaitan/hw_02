@@ -3,6 +3,8 @@ import { driversRouter } from './drivers/routers/drivers.router';
 import { testingRouter } from './testing/routers/testing.router';
 import { setupSwagger } from './core/swagger/setup-swagger';
 import { videosRouter } from './videos/routers/videos.router';
+import { blogsRouter } from './blogs/routers/blogs.router';
+import { postsRouter } from './posts/routers/posts.router';
 
 export const setupApp = (app: Express) => {
   app.use(express.json());
@@ -14,8 +16,8 @@ export const setupApp = (app: Express) => {
   app.use('/drivers', driversRouter);
   app.use('/videos', videosRouter);
   app.use('/testing', testingRouter);
-  app.use('/blogs', testingRouter);
-  app.use('/posts', testingRouter);
+  app.use('/blogs', blogsRouter);
+  app.use('/posts', postsRouter);
 
   setupSwagger(app);
   return app;

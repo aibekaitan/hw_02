@@ -7,5 +7,7 @@ export const testingRouter = Router({});
 testingRouter.delete('/all-data', (req: Request, res: Response) => {
   db.drivers = [];
   db.videos = [];
+  db.posts = [];
+  db.blogs = [];
   res.sendStatus(HttpStatus.NoContent);
 });
