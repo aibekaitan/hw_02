@@ -15,7 +15,11 @@ export const postsRouter = Router({});
 // posts.router.ts
 postsRouter
   .get('', async (req: Request, res: Response<Post[]>) => {
-    res.status(200).send(await postsCollection.find({}).toArray());
+    const posts = await postsCollection.find({}).toArray();
+
+    const mappedPosts = posts.map(({ _id, ...rest }) => rest);
+
+    res.status(200).send(mappedPosts);
   })
 
   .get('/:id', async (req: Request, res: Response) => {
@@ -30,7 +34,8 @@ postsRouter
         );
       return;
     }
-    res.status(200).send(post);
+    const { _id, ...mappedPost } = post;
+    res.status(200).send(mappedPost);
   })
 
   .post(
@@ -71,7 +76,17 @@ postsRouter
       };
 
       await postsCollection.insertOne(newPost);
-      res.status(201).send(newPost);
+
+      const mapnewPost: Post = {
+        id: newPost.id,
+        title: newPost.title,
+        shortDescription: newPost.shortDescription,
+        content: newPost.content,
+        blogId: blog.id,
+        blogName: blog.name,
+        createdAt: newPost.createdAt,
+      };
+      res.status(201).send(mapnewPost);
     },
   )
 

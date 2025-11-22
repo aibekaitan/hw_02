@@ -15,7 +15,11 @@ export const blogsRouter = Router({});
 // blogs.router.ts
 blogsRouter
   .get('', async (req: Request, res: Response<Blog[]>) => {
-    res.status(200).send(await blogsCollection.find({}).toArray());
+    const blogs = await blogsCollection.find({}).toArray();
+
+    const mapped = blogs.map(({ _id, ...rest }) => rest);
+
+    res.status(200).send(mapped);
   })
 
   .get('/:id', async (req: Request, res: Response) => {
@@ -30,7 +34,8 @@ blogsRouter
         );
       return;
     }
-    res.status(200).send(blog);
+    const { _id, ...mappedBlog } = blog;
+    res.status(200).send(mappedBlog);
   })
 
   .post(
@@ -57,7 +62,15 @@ blogsRouter
         isMembership: false,
       };
       await blogsCollection.insertOne(newblog);
-      res.status(201).send(newblog);
+      const mapnewblog: Blog = {
+        id: newblog.id,
+        name: newblog.name,
+        description: newblog.description,
+        websiteUrl: newblog.websiteUrl,
+        createdAt: newblog.createdAt,
+        isMembership: false,
+      };
+      res.status(201).send(mapnewblog);
     },
   )
 
