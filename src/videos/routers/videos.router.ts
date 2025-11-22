@@ -38,11 +38,11 @@ videosRouter
     console.log('🔵 Validation errors count:', errors.length);
     console.log('🔵 Validation errors:', errors);
     if (errors.length > 0) {
-      console.log('🔴 Sending 400 Bad Request');
+      console.log(' Sending 400 Bad Request');
       res.status(400).send(createErrorMessages(errors));
       return;
     }
-    console.log('🟢 Creating new video...');
+    console.log(' Creating new video...');
     const createdAt = new Date();
     const publicationDate = new Date(createdAt.getTime() + 24 * 60 * 60 * 1000);
 

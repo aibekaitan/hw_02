@@ -1,15 +1,24 @@
 import express from 'express';
 import { setupApp } from './setup-app';
+import { SETTINGS } from './core/settings/settings';
+import { runDB } from './db/mongo.db';
 
-// создание приложения
-const app = express();
-setupApp(app);
+import { client } from './db/mongo.db';
+import { setBlogsCollection, setPostsCollection } from './db/collections';
 
-// process — это глобальный объект в Node.js, который содержит информацию о текущем процессе выполнения.
-// process.env — это объект, содержащий все переменные окружения, доступные вашему приложению.
-const PORT = process.env.PORT || 5001;
 
-// ф-ия listen - запускает сервер и начинает прослушивать входящие запросы на указанном порту.
-app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}`);
-});
+const bootstrap = async () => {
+  const app = express();
+  setupApp(app);
+  const PORT = SETTINGS.PORT;
+
+  await runDB(SETTINGS.MONGO_URL);
+  setBlogsCollection(client.db('my_database').collection('blogs'));
+  setPostsCollection(client.db('my_database').collection('posts'));
+  app.listen(PORT, () => {
+    console.log(`Example app listening on port ${PORT}`);
+  });
+  return app;
+};
+
+bootstrap();

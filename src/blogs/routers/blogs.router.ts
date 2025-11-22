@@ -6,18 +6,21 @@ import { createErrorMessages } from '../../core/utils/error.utils';
 import { Blog } from '../types/blog';
 import { db } from '../../db/in-memory.db';
 import { superAdminGuardMiddleware } from '../../posts/middlewares/super-admin.guard-middleware';
+import { client } from '../../db/mongo.db';
+import { Collection } from 'mongodb';
+import { blogsCollection } from '../../db/collections';
 
 export const blogsRouter = Router({});
 
 // blogs.router.ts
 blogsRouter
-  .get('', (req: Request, res: Response<Blog[]>) => {
-    res.status(200).send(db.blogs);
+  .get('', async (req: Request, res: Response<Blog[]>) => {
+    res.status(200).send(await blogsCollection.find({}).toArray());
   })
 
-  .get('/:id', (req: Request, res: Response) => {
+  .get('/:id', async (req: Request, res: Response) => {
     const id = req.params.id;
-    const blog = db.blogs.find((d) => d.id === id);
+    const blog = await blogsCollection.findOne({ id: id });
 
     if (!blog) {
       res
@@ -33,7 +36,7 @@ blogsRouter
   .post(
     '',
     superAdminGuardMiddleware,
-    (req: Request<{}, {}, BlogInputModel>, res: Response) => {
+    async (req: Request<{}, {}, BlogInputModel>, res: Response) => {
       const errors = blogInputValidation(req.body);
 
       console.log(' Validation errors count:', errors.length);
@@ -44,15 +47,16 @@ blogsRouter
         res.status(400).send(createErrorMessages(errors));
         return;
       }
-
+      const createdAt = new Date();
       const newblog: Blog = {
         id: new Date().toISOString(),
         name: req.body.name,
         description: req.body.description,
         websiteUrl: req.body.websiteUrl,
+        createdAt: createdAt.toISOString(),
+        isMembership: false,
       };
-
-      db.blogs.push(newblog);
+      await blogsCollection.insertOne(newblog);
       res.status(201).send(newblog);
     },
   )
@@ -60,9 +64,9 @@ blogsRouter
   .put(
     '/:id',
     superAdminGuardMiddleware,
-    (req: Request<{ id: string }, {}, BlogInputModel>, res: Response) => {
+    async (req: Request<{ id: string }, {}, BlogInputModel>, res: Response) => {
       const id = req.params.id;
-      const blog = db.blogs.find((v) => v.id === id);
+      const blog = await blogsCollection.findOne({ id: id });
 
       if (!blog) {
         res
@@ -79,10 +83,16 @@ blogsRouter
         res.status(400).send(createErrorMessages(errors));
         return;
       }
-      blog.name = req.body.name;
-      blog.description = req.body.description;
-      blog.websiteUrl = req.body.websiteUrl;
-
+      await blogsCollection.updateOne(
+        { id: id },
+        {
+          $set: {
+            name: req.body.name,
+            description: req.body.description,
+            websiteUrl: req.body.websiteUrl,
+          },
+        },
+      );
       res.sendStatus(204);
     },
   )
@@ -90,11 +100,12 @@ blogsRouter
   .delete(
     '/:id',
     superAdminGuardMiddleware,
-    (req: Request<{ id: string }>, res: Response) => {
+    async (req: Request<{ id: string }>, res: Response) => {
       const id = req.params.id;
-      const index = db.blogs.findIndex((v) => v.id === id);
+      const result = await blogsCollection.deleteOne({ id: id });
+      // const index = db.blogs.findIndex((v) => v.id === id);
 
-      if (index === -1) {
+      if (result.deletedCount === 0) {
         res
           .status(404)
           .send(
@@ -102,8 +113,6 @@ blogsRouter
           );
         return;
       }
-
-      db.blogs.splice(index, 1);
       res.sendStatus(204);
     },
   );
