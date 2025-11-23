@@ -12,7 +12,7 @@ const bootstrap = async () => {
   setupApp(app);
   const PORT = SETTINGS.PORT;
 
-  await runDB(SETTINGS.MONGO_URL);
+  await runDB(SETTINGS.MONGO_URL || 'mongodb://127.0.0.1:27017');
   setBlogsCollection(client.db('my_database').collection('blogs'));
   setPostsCollection(client.db('my_database').collection('posts'));
   app.listen(PORT, () => {
