@@ -6,7 +6,6 @@ import { runDB } from './db/mongo.db';
 import { client } from './db/mongo.db';
 import { setBlogsCollection, setPostsCollection } from './db/collections';
 
-
 const bootstrap = async () => {
   const app = express();
   setupApp(app);

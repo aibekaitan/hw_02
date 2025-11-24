@@ -1,7 +1,6 @@
 import express, { Express, Request, Response } from 'express';
 import { driversRouter } from './drivers/routers/drivers.router';
 import { testingRouter } from './testing/routers/testing.router';
-import { setupSwagger } from './core/swagger/setup-swagger';
 import { videosRouter } from './videos/routers/videos.router';
 import { blogsRouter } from './blogs/routers/blogs.router';
 import { postsRouter } from './posts/routers/posts.router';
@@ -19,6 +18,6 @@ export const setupApp = (app: Express) => {
   app.use('/blogs', blogsRouter);
   app.use('/posts', postsRouter);
 
-  setupSwagger(app);
+  // setupSwagger(app);
   return app;
 };
