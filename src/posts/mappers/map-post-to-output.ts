@@ -1,8 +1,8 @@
 import { Post } from '../types/post';
 import { WithId } from 'mongodb';
 
-export const mapToPostOutput = (post: WithId<Post>) => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const mapToPostOutput = (post: Post) => {
+  // @ts-ignore
   const { _id, ...rest } = post;
   return rest;
 };

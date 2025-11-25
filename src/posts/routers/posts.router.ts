@@ -32,7 +32,7 @@ postsRouter
     async (req: Request, res: Response) => {
       const blog = (req as any).blog;
       const post = await postsRepository.create(req.body, blog.name);
-      res.status(HttpStatus.Created).send(post);
+      res.status(HttpStatus.Created).send(mapToPostOutput(post));
     },
   )
   .put(
