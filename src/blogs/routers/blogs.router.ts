@@ -21,6 +21,8 @@ blogsRouter
     '',
     // paginationAndSortingValidation(),
     async (req: Request, res: Response<BlogPaginator>) => {
+      console.log('Query params:', req.query);
+      console.log('Body:', req.body);
       // const blogs = await blogsCollection.find({}).toArray();
       const pageNumber = Number(req.query.pageNumber) || 1;
       const pageSize = Number(req.query.pageSize) || 10;
@@ -40,6 +42,8 @@ blogsRouter
     },
   )
   .get('/:blogId/posts', async (req: Request, res: Response) => {
+    console.log('Query params:', req.query);
+    console.log('Body:', req.body);
     const pageNumber = Number(req.query.pageNumber) || 1;
     const pageSize = Number(req.query.pageSize) || 10;
     const sortBy = (req.query.sortBy as string) || 'createdAt';
@@ -89,6 +93,7 @@ blogsRouter
     async (req: Request, res: Response) => {
       // debugger;
       // const blog = (req as any).blog;
+
       const newPost = await blogsService.createByBlogId(
         req.params.blogId,
         req.body,

@@ -13,6 +13,8 @@ export const postsRouter = Router();
 
 postsRouter
   .get('', async (req: Request, res: Response) => {
+    console.log('Query params:', req.query);
+    console.log('Body:', req.body);
     const pageNumber = Number(req.query.pageNumber) || 1;
     const pageSize = Number(req.query.pageSize) || 10;
     const sortBy = (req.query.sortBy as string) || 'createdAt';
