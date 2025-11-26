@@ -4,6 +4,9 @@ import { DeleteResult, UpdateResult, WithId } from 'mongodb';
 import { BlogInputModel } from '../dto/blog.input';
 import { BlogPaginator } from '../types/paginator';
 import { PostPaginator } from '../../posts/types/paginator';
+import { BlogPostInputModel } from '../dto/blogPost.input';
+import { Post } from '../../posts/types/post';
+import { blogsCollection, postsCollection } from '../../db/collections';
 
 export const blogsService = {
   async findAllBlogs(params: {
@@ -41,6 +44,28 @@ export const blogsService = {
     };
     await blogsRepository.create(blog);
     return blog;
+  },
+  async createByBlogId(
+    blogId: string,
+    dto: BlogPostInputModel,
+  ): Promise<Post | null> {
+    const createdAt = new Date();
+    const filter = { id: blogId };
+    const blog = await blogsCollection.findOne(filter);
+    if (!blog) {
+      return null; // роутер вернёт 404
+    }
+    const post: Post = {
+      id: new Date().toISOString(),
+      title: dto.title,
+      shortDescription: dto.shortDescription,
+      content: dto.content,
+      blogId: blogId,
+      blogName: blog.name,
+      createdAt: createdAt.toISOString(),
+    };
+    await postsCollection.insertOne(post);
+    return post;
   },
   async update(id: string, dto: BlogInputModel): Promise<UpdateResult<Blog>> {
     return blogsRepository.update(id, dto);

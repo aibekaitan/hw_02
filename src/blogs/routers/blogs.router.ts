@@ -10,6 +10,7 @@ import {
   validateBlogInput,
 } from '../middlewares/blogs-middlewares';
 import { BlogPaginator } from '../types/paginator';
+import { mapToPostOutput } from '../../posts/mappers/map-post-to-output';
 
 export const blogsRouter = Router({});
 
@@ -43,13 +44,22 @@ blogsRouter
     const sortBy = (req.query.sortBy as string) || 'createdAt';
     const sortDirection =
       (req.query.sortDirection as string) === 'asc' ? 'asc' : 'desc';
-
     const result = await blogsService.findPostsByBlogId(req.params.blogId, {
       pageNumber,
       pageSize,
       sortBy,
       sortDirection,
     });
+    if (result.items.length === 0) {
+      res
+        .status(HttpStatus.NotFound)
+        .send(
+          createErrorMessages([
+            { field: 'blogId', message: 'blogId not found' },
+          ]),
+        );
+      return;
+    }
     res.status(HttpStatus.Ok).send(result);
   })
 
@@ -68,6 +78,31 @@ blogsRouter
       const newblog = await blogsService.create(req.body);
       // await blogsCollection.insertOne(newblog);
       res.status(HttpStatus.Created).send(mapToBlogOutput(newblog));
+    },
+  )
+
+  .post(
+    '/:blogId/posts',
+    superAdminGuardMiddleware,
+    async (req: Request, res: Response) => {
+      // debugger;
+      // const blog = (req as any).blog;
+      const newPost = await blogsService.createByBlogId(
+        req.params.blogId,
+        req.body,
+      );
+      if (!newPost) {
+        res
+          .status(HttpStatus.NotFound)
+          .send(
+            createErrorMessages([
+              { field: 'blogId', message: 'blogId not found' },
+            ]),
+          );
+        return;
+      }
+      // await blogsCollection.insertOne(newblog);
+      res.status(HttpStatus.Created).send(mapToPostOutput(newPost));
     },
   )
 
