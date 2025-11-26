@@ -2,10 +2,42 @@ import { Post } from '../types/post';
 import { postsCollection } from '../../db/collections';
 import { DeleteResult, UpdateResult, WithId } from 'mongodb';
 import { PostInputModel } from '../dto/post.input';
+import { PostPaginator } from '../types/paginator';
+import { mapToPostsOutput } from '../mappers/map-post-to-output';
 
 export const postsRepository = {
-  async findAll(): Promise<WithId<Post>[]> {
-    return postsCollection.find({}).toArray();
+  async findAll(params: {
+    pageNumber: number;
+    pageSize: number;
+    sortBy: string;
+    sortDirection: string;
+  }): Promise<PostPaginator> {
+    const pageNumber = params.pageNumber;
+    const pageSize = params.pageSize;
+    const sortBy = params.sortBy;
+    const sortDirection = params.sortDirection === 'asc' ? 1 : -1;
+
+    // const filter = params?.searchNameTerm
+    //   ? { name: { $regex: params.searchNameTerm, $options: 'i' } } // регистронезависимый поиск
+    //   : {};
+
+    const totalCount = await postsCollection.countDocuments();
+
+    const items = await postsCollection
+      .find({})
+      .sort({ [sortBy]: sortDirection })
+      .skip((pageNumber - 1) * pageSize)
+      .limit(pageSize)
+      .toArray();
+    const mappedBlogs = mapToPostsOutput(items);
+    return {
+      pagesCount: Math.ceil(totalCount / pageSize),
+      page: pageNumber,
+      pageSize,
+      totalCount,
+      items: mappedBlogs,
+    };
+    // return postsCollection.find({}).toArray();
   },
   async findById(id: string): Promise<WithId<Post> | null> {
     return postsCollection.findOne({ id });

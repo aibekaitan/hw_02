@@ -7,17 +7,26 @@ import {
   validatePostInput,
 } from '../middlewares/posts-middlewares';
 import { HttpStatus } from '../../core/types/http-statuses';
-import {
-  mapToPostOutput,
-  mapToPostsOutput,
-} from '../mappers/map-post-to-output';
+import { mapToPostOutput } from '../mappers/map-post-to-output';
 
 export const postsRouter = Router();
 
 postsRouter
   .get('', async (req: Request, res: Response) => {
-    const posts = await postsRepository.findAll();
-    res.status(HttpStatus.Ok).send(mapToPostsOutput(posts));
+    const pageNumber = Number(req.query.pageNumber) || 1;
+    const pageSize = Number(req.query.pageSize) || 10;
+    const sortBy = (req.query.sortBy as string) || 'createdAt';
+    const sortDirection =
+      (req.query.sortDirection as string) === 'asc' ? 'asc' : 'desc';
+    // const searchNameTerm = (req.query.searchNameTerm as string) || null;
+
+    const result = await postsRepository.findAll({
+      pageNumber,
+      pageSize,
+      sortBy,
+      sortDirection,
+    });
+    res.status(HttpStatus.Ok).send(result);
   })
   .get('/:id', async (req: Request, res: Response) => {
     const post = await postsMiddlewares(req, res);
