@@ -11,6 +11,7 @@ import {
 } from '../middlewares/blogs-middlewares';
 import { BlogPaginator } from '../types/paginator';
 import { mapToPostOutput } from '../../posts/mappers/map-post-to-output';
+import { validatePostInput } from '../../posts/middlewares/posts-middlewares';
 
 export const blogsRouter = Router({});
 
@@ -84,6 +85,7 @@ blogsRouter
   .post(
     '/:blogId/posts',
     superAdminGuardMiddleware,
+    validatePostInput,
     async (req: Request, res: Response) => {
       // debugger;
       // const blog = (req as any).blog;
