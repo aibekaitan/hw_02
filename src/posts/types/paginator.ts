@@ -5,5 +5,5 @@ export type PostPaginator = {
   page: number;
   pageSize: number;
   totalCount: number;
-  items: Post[];
+  items: Post[]; //generic
 };
