@@ -12,7 +12,10 @@ export const baseAuthGuard = (
   next: NextFunction,
 ) => {
   const auth = req.headers.authorization;
-  if (!auth) return res.sendStatus(401);
+  if (!auth) {
+    res.sendStatus(401);
+    return;
+  }
 
   const [authType, token] = auth.split(' ');
   if (authType !== 'Basic') return res.sendStatus(401);
