@@ -1,7 +1,11 @@
 import { Router, Request, Response } from 'express';
 // import { db } from '../../db/in-memory.db';
 import { HttpStatus } from '../../core/types/http-statuses';
-import { blogsCollection, postsCollection } from '../../db/collections';
+import {
+  blogsCollection,
+  postsCollection,
+  usersCollection,
+} from '../../db/collections';
 
 export const testingRouter = Router({});
 
@@ -12,5 +16,6 @@ testingRouter.delete('/all-data', async (req: Request, res: Response) => {
   // db.blogs = [];
   await blogsCollection.deleteMany({});
   await postsCollection.deleteMany({});
+  await usersCollection.deleteMany({});
   res.sendStatus(HttpStatus.NoContent);
 });
