@@ -3,4 +3,6 @@ export type SortQueryFilterType = {
   pageSize: number;
   sortDirection: 1 | -1;
   sortBy: string;
+  searchLoginTerm?: string;
+  searchEmailTerm?: string;
 };

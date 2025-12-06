@@ -22,6 +22,6 @@ authRouter.post(
       res.sendStatus(HttpStatus.Unauthorized);
     }
 
-    res.status(HttpStatus.Ok).send({ accessToken });
+    res.status(HttpStatus.NoContent).send({ accessToken });
   },
 );

@@ -33,8 +33,9 @@ usersRouter.get(
     const { pageNumber, pageSize, sortBy, sortDirection } = sortQueryFieldsUtil(
       req.query,
     );
-
     const allUsers = await usersQwRepository.findAllUsers({
+      searchLoginTerm: req.query.searchLoginTerm,
+      searchEmailTerm: req.query.searchEmailTerm,
       pageNumber,
       pageSize,
       sortBy,

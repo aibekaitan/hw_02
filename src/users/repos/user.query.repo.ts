@@ -10,15 +10,38 @@ export const usersQwRepository = {
   async findAllUsers(
     sortQueryDto: SortQueryFilterType,
   ): Promise<IPagination<IUserView[]>> {
-    const { sortBy, sortDirection, pageSize, pageNumber } = sortQueryDto;
+    const {
+      searchEmailTerm,
+      searchLoginTerm,
+      sortBy,
+      sortDirection,
+      pageSize,
+      pageNumber,
+    } = sortQueryDto;
 
     const loginAndEmailFilter = {};
+    const filter: any = {};
+    const conds = [];
+
+    if (searchEmailTerm) {
+      conds.push({
+        login: { $regex: searchEmailTerm, $options: 'i' },
+      });
+    }
+
+    if (searchLoginTerm) {
+      conds.push({
+        email: { $regex: searchLoginTerm, $options: 'i' },
+      });
+    }
+
+    if (conds.length > 0) filter.$or = conds;
 
     const totalCount =
       await usersCollection.countDocuments(loginAndEmailFilter);
 
     const users = await usersCollection
-      .find(loginAndEmailFilter)
+      .find(filter)
       .sort({ [sortBy]: sortDirection })
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)

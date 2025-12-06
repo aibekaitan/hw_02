@@ -15,6 +15,8 @@ export const sortQueryFieldsUtil = (
     pageSize,
     sortDirection,
     sortBy,
+    searchLoginTerm: query.searchLoginTerm,
+    searchEmailTerm: query.searchEmailTerm,
   };
   return result;
 };
