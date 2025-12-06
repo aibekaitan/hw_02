@@ -23,22 +23,21 @@ export const usersQwRepository = {
     const filter: any = {};
     const conds = [];
 
-    if (searchEmailTerm) {
+    if (searchLoginTerm) {
       conds.push({
-        login: { $regex: searchEmailTerm, $options: 'i' },
+        login: { $regex: searchLoginTerm, $options: 'i' },
       });
     }
 
-    if (searchLoginTerm) {
+    if (searchEmailTerm) {
       conds.push({
-        email: { $regex: searchLoginTerm, $options: 'i' },
+        email: { $regex: searchEmailTerm, $options: 'i' },
       });
     }
 
     if (conds.length > 0) filter.$or = conds;
 
-    const totalCount =
-      await usersCollection.countDocuments(loginAndEmailFilter);
+    const totalCount = await usersCollection.countDocuments(filter);
 
     const users = await usersCollection
       .find(filter)
