@@ -18,10 +18,13 @@ export const baseAuthGuard = (
   }
 
   const [authType, token] = auth.split(' ');
-  if (authType !== 'Basic') return res.sendStatus(401);
-  if (token !== ADMIN_TOKEN) {
+
+  if (authType !== 'Basic') {
     res.sendStatus(401);
     return;
+  }
+  if (token !== ADMIN_TOKEN) {
+    res.sendStatus(401);
   }
 
   next();
