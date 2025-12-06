@@ -10,7 +10,7 @@ import { HttpStatus } from '../../core/types/http-statuses';
 export const authRouter = Router();
 
 authRouter.post(
-  '/auth/login',
+  '',
   passwordValidation,
   loginOrEmailValidation,
   inputValidation,

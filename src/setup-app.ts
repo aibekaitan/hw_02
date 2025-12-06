@@ -5,6 +5,7 @@ import { videosRouter } from './videos/routers/videos.router';
 import { blogsRouter } from './blogs/routers/blogs.router';
 import { postsRouter } from './posts/routers/posts.router';
 import { usersRouter } from './users/api/users.router';
+import { authRouter } from './auth/api/auth.router';
 
 export const setupApp = (app: Express) => {
   app.use(express.json());
@@ -19,6 +20,7 @@ export const setupApp = (app: Express) => {
   app.use('/blogs', blogsRouter);
   app.use('/posts', postsRouter);
   app.use('/users', usersRouter);
+  app.use('/auth/login', authRouter);
   // setupSwagger(app);
   return app;
 };
