@@ -19,6 +19,7 @@ import { inputValidation } from '../../common/validation/input.validation';
 import { passwordValidation } from './middlewares/password.validation';
 import { loginValidation } from './middlewares/login.validation';
 import { HttpStatuses } from '../../common/types/httpStatuses';
+import { ObjectId } from 'mongodb';
 
 export const usersRouter = Router();
 
@@ -67,6 +68,12 @@ usersRouter.delete(
   '/:id',
   baseAuthGuard,
   async (req: RequestWithParams<IdType>, res: Response<string>) => {
+
+
+    if (!ObjectId.isValid(req.params.id)) {
+      res.sendStatus(404);
+      return;
+    }
     const user = await usersService.delete(req.params.id);
 
     if (!user) {
