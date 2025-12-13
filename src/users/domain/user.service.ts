@@ -1,4 +1,4 @@
-import { usersRepository } from '../repos/user.repo';
+import { usersRepository } from '../infrastructure/user.repository';
 import { bcryptService } from '../../auth/adapters/bcrypt.service';
 import { IUserDB } from '../types/user.db.interface';
 import { CreateUserDto } from '../types/create-user.dto';

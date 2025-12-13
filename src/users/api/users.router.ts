@@ -9,7 +9,7 @@ import { usersService } from '../domain/user.service';
 import { IUserView } from '../types/user.view.interface';
 import { IdType } from '../../common/types/id';
 import { baseAuthGuard } from '../../auth/api/guards/base.auth.guard';
-import { usersQwRepository } from '../repos/user.query.repo';
+import { usersQwRepository } from '../infrastructure/user.query.repo';
 import { UsersQueryFieldsType } from '../types/users.queryFields.type';
 import { IPagination } from '../../common/types/pagination';
 import { sortQueryFieldsUtil } from '../../common/utils/sortQueryFields.util';
@@ -68,8 +68,6 @@ usersRouter.delete(
   '/:id',
   baseAuthGuard,
   async (req: RequestWithParams<IdType>, res: Response<string>) => {
-
-
     if (!ObjectId.isValid(req.params.id)) {
       res.sendStatus(404);
       return;
