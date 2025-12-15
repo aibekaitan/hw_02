@@ -6,6 +6,7 @@ import { runDB } from './db/mongo.db';
 import { client } from './db/mongo.db';
 import {
   setBlogsCollection,
+  setCommentsCollection,
   setPostsCollection,
   setUsersCollection,
 } from './db/collections';
@@ -19,6 +20,7 @@ const bootstrap = async () => {
   setBlogsCollection(client.db('my_database').collection('blogs'));
   setPostsCollection(client.db('my_database').collection('posts'));
   setUsersCollection(client.db('my_database').collection('users'));
+  setCommentsCollection(client.db('my_database').collection('comments'));
   app.listen(PORT, () => {
     console.log(`Example app listening on port ${PORT}`);
   });
