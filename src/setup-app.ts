@@ -20,7 +20,7 @@ export const setupApp = (app: Express) => {
   app.use('/blogs', blogsRouter);
   app.use('/posts', postsRouter);
   app.use('/users', usersRouter);
-  app.use('/auth/login', authRouter);
+  app.use('/auth', authRouter);
   // setupSwagger(app);
   return app;
 };

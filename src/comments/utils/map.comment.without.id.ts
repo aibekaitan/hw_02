@@ -1,7 +1,7 @@
 import { WithId } from 'mongodb';
-import { CommentInputModel } from '../types/comments.dto';
+import { CommentDB, CommentInputModel } from '../types/comments.dto';
 
-export const mapToCommentOutput = (comment: CommentInputModel) => {
+export const mapToCommentOutput = (comment: CommentDB) => {
   // @ts-ignore
   const { _id, ...rest } = comment;
   return rest;

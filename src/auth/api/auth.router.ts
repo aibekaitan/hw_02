@@ -19,7 +19,7 @@ import { resultCodeToHttpException } from '../../common/result/resultCodeToHttpE
 export const authRouter = Router();
 
 authRouter.post(
-  '',
+  '/login',
   passwordValidation,
   loginOrEmailValidation,
   inputValidation,
@@ -30,6 +30,7 @@ authRouter.post(
       res
         .status(resultCodeToHttpException(result.status))
         .send(result.extensions);
+      return;
     }
 
     res
@@ -38,12 +39,15 @@ authRouter.post(
   },
 );
 authRouter.get(
-  '/auth/me',
+  '/me',
   accessTokenGuard,
   async (req: RequestWithUserId<IdType>, res: Response) => {
     const userId = req.user?.id as string;
 
-    if (!userId) res.sendStatus(HttpStatuses.Unauthorized);
+    if (!userId) {
+      res.sendStatus(HttpStatuses.Unauthorized);
+      return;
+    }
     const me = await usersQwRepository.findById(userId);
 
     res.status(HttpStatuses.Success).send(me);

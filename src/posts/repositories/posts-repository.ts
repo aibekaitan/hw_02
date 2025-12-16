@@ -1,9 +1,14 @@
 import { Post } from '../types/post';
-import { postsCollection } from '../../db/collections';
-import { DeleteResult, UpdateResult, WithId } from 'mongodb';
+import { commentsCollection, postsCollection } from '../../db/collections';
+import { DeleteResult, ObjectId, UpdateResult, WithId } from 'mongodb';
 import { PostInputModel } from '../dto/post.input';
 import { PostPaginator } from '../types/paginator';
 import { mapToPostsOutput } from '../mappers/map-post-to-output';
+import {
+  CommentDB,
+  CommentInputModel,
+} from '../../comments/types/comments.dto';
+import { usersRepository } from '../../users/infrastructure/user.repository';
 
 export const postsRepository = {
   async findAll(params: {
@@ -55,6 +60,27 @@ export const postsRepository = {
     };
     await postsCollection.insertOne(post);
     return post;
+  },
+  async createComment(
+    dto: CommentInputModel,
+    postId: string,
+    userId: string,
+  ): Promise<CommentDB> {
+    const createdAt = new Date();
+    const user = await usersRepository.findById(userId);
+
+    const comment: CommentDB = {
+      id: new Date().toISOString(),
+      content: dto.content,
+      postId: postId,
+      commentatorInfo: {
+        userId: userId,
+        userLogin: user?.login,
+      },
+      createdAt: createdAt.toISOString(),
+    };
+    await commentsCollection.insertOne(comment);
+    return comment;
   },
   async update(id: string, dto: PostInputModel): Promise<UpdateResult<Post>> {
     return postsCollection.updateOne(

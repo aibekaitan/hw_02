@@ -3,6 +3,7 @@ import { Blog } from '../blogs/types/blog';
 import { Post } from '../posts/types/post';
 import { IUserDB } from '../users/types/user.db.interface';
 import {
+  CommentDB,
   CommentInputModel,
   CommentViewModel,
 } from '../comments/types/comments.dto';
@@ -10,7 +11,7 @@ import {
 export let blogsCollection: Collection<Blog>;
 export let postsCollection: Collection<Post>;
 export let usersCollection: Collection<IUserDB>;
-export let commentsCollection: Collection<CommentViewModel>;
+export let commentsCollection: Collection<CommentDB>;
 
 export function setBlogsCollection(collection: Collection<Blog>) {
   blogsCollection = collection;
@@ -24,8 +25,6 @@ export function setUsersCollection(collection: Collection<IUserDB>) {
   usersCollection = collection;
 }
 
-export function setCommentsCollection(
-  collection: Collection<CommentViewModel>,
-) {
+export function setCommentsCollection(collection: Collection<CommentDB>) {
   commentsCollection = collection;
 }

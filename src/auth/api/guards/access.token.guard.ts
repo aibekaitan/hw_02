@@ -12,7 +12,7 @@ export const accessTokenGuard = async (
     return;
   }
 
-  const [authType, token] = req.headers.authorization.split(' ')[1];
+  const [authType, token] = req.headers.authorization.split(' ');
 
   if (authType !== 'Bearer') {
     res.sendStatus(401);
@@ -27,5 +27,6 @@ export const accessTokenGuard = async (
     next();
     return;
   }
+
   res.sendStatus(401);
 };

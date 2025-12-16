@@ -21,3 +21,6 @@ export type RequestWithBodyAndUserId<B, U extends IdType> = Request<
   U
 >;
 export type RequestWithUserId<U extends IdType> = Request<{}, {}, {}, {}, U>;
+export type ParamsType = {
+  id: string; // это id поста
+};
