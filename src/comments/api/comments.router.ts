@@ -22,7 +22,6 @@ commentsRouter.get('/:id', async (req, res) => {
 
 commentsRouter.delete(
   '/:id',
-  accessTokenGuard,
   objectIdValidation,
   commentExistMiddleware,
   commentOwnerMiddleware,
@@ -34,7 +33,6 @@ commentsRouter.delete(
 
 commentsRouter.put(
   '/:id',
-  accessTokenGuard,
   bodyValidation,
   inputValidation,
   commentExistMiddleware,

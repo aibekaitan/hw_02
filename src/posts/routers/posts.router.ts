@@ -65,7 +65,6 @@ postsRouter
   )
   .post(
     '/:postId/comments',
-    accessTokenGuard,
     validatePostInput,
     validateBlogExists,
     async (req: Request, res: Response) => {
