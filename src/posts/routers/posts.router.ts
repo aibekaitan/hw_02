@@ -25,6 +25,8 @@ import { CommentsQueryFieldsType } from '../types/comments.queryFields.type';
 import { postsQwRepository } from '../repositories/post.query.repository';
 import { accessTokenGuard } from '../../auth/api/guards/access.token.guard';
 import { mapToCommentOutput } from '../../comments/utils/map.comment.without.id';
+import { bodyValidation } from '../middlewares/body.validation';
+import { inputValidation } from '../../common/validation/input.validation';
 
 export const postsRouter = Router();
 
@@ -65,10 +67,9 @@ postsRouter
   )
   .post(
     '/:postId/comments',
-    validatePostInput,
-    validateBlogExists,
+    bodyValidation,
+    inputValidation,
     async (req: Request, res: Response) => {
-      const blog = (req as any).blog;
       if (!req.user) {
         res.sendStatus(401);
         return;
