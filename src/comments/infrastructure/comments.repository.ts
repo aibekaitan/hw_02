@@ -8,11 +8,11 @@ import {
 } from '../types/comments.dto';
 export const commentsRepository = {
   async delete(id: string): Promise<boolean> {
-    const isDel = await commentsCollection.deleteOne({ _id: new ObjectId(id) });
+    const isDel = await commentsCollection.deleteOne({ id });
     return isDel.deletedCount === 1;
   },
   async findById(id: string): Promise<WithId<CommentDB> | null> {
-    return commentsCollection.findOne({ _id: new ObjectId(id) });
+    return commentsCollection.findOne({ id });
   },
   async update(
     id: string,
