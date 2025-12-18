@@ -1,10 +1,18 @@
 import { WithId } from 'mongodb';
-import { CommentDB, CommentInputModel } from '../types/comments.dto';
+import {
+  CommentDB,
+  CommentInputModel,
+  CommentViewModel,
+} from '../types/comments.dto';
 
-export const mapToCommentOutput = (comment: CommentDB) => {
-  // @ts-ignore
-  const { _id, ...rest } = comment;
-  return rest;
+export const mapToCommentOutput = (comment: WithId<CommentDB>): CommentDB => {
+  return {
+    id: comment._id.toString(), // преобразуем ObjectId в строку
+    content: comment.content,
+    postId: comment.postId,
+    commentatorInfo: comment.commentatorInfo,
+    createdAt: comment.createdAt,
+  };
 };
 
 // export const mapToPostsOutput = (posts: WithId<Post>[]): Post[] => {
