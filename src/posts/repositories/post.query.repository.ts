@@ -48,15 +48,7 @@ export const postsQwRepository = {
   // _checkObjectId(id: string): boolean {
   //   return ObjectId.isValid(id);
   // },
-  _getInViewComment(comment: WithId<CommentDB>): CommentViewModel {
-    return {
-      id: comment._id,
-      content: comment.content,
-      commentatorInfo: comment.commentatorInfo,
-      createdAt: comment.createdAt,
-    };
-  },
-  _getInViewComment2(comment: CommentDB): CommentViewModel {
+  _getInViewComment(comment: CommentDB): CommentViewModel {
     return {
       id: comment.id,
       content: comment.content,

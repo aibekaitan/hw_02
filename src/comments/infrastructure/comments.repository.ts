@@ -10,9 +10,6 @@ export const commentsRepository = {
   async findById(id: string): Promise<WithId<CommentViewModel> | null> {
     return commentsCollection.findOne({ _id: new ObjectId(id) });
   },
-  async findById2(id: string): Promise<WithId<CommentViewModel> | null> {
-    return commentsCollection.findOne({ id: new ObjectId(id) });
-  },
   async update(
     id: string,
     dto: CommentInputModel,

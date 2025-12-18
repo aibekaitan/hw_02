@@ -12,7 +12,7 @@ import { objectIdValidation } from './middlewares/objectId.validation.middleware
 export const commentsRouter = Router();
 
 commentsRouter.get('/:id', async (req, res) => {
-  const comment = await commentsRepository.findById2(req.params.id);
+  const comment = await commentsRepository.findById(req.params.id);
   if (!comment) {
     res.sendStatus(404);
     return;
@@ -35,10 +35,10 @@ commentsRouter.delete(
 commentsRouter.put(
   '/:id',
   accessTokenGuard,
-  bodyValidation,
-  inputValidation,
   commentExistMiddleware,
   commentOwnerMiddleware,
+  bodyValidation,
+  inputValidation,
   async (req: Request, res: Response) => {
     await commentsRepository.update(req.params.id, req.body);
     res.sendStatus(HttpStatus.NoContent);

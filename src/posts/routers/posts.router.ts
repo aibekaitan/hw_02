@@ -83,10 +83,10 @@ postsRouter
         req.params.id,
         req.user.id,
       );
-      postsQwRepository._getInViewComment2(comment);
+      postsQwRepository._getInViewComment(comment);
       res
         .status(HttpStatus.Created)
-        .send(postsQwRepository._getInViewComment2(comment));
+        .send(postsQwRepository._getInViewComment(comment));
     },
   )
   .get(
