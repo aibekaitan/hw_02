@@ -89,7 +89,7 @@ postsRouter
     },
   )
   .get(
-    '/:id/comments',
+    '/:postId/comments',
     validatePostExists,
     pageNumberValidation,
     async (
