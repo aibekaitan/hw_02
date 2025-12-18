@@ -8,9 +8,18 @@ export async function commentOwnerMiddleware(
   res: Response,
   next: NextFunction,
 ) {
+  console.log('commentOwnerMiddleware → req.user?.id:', req.user?.id);
+  console.log(
+    'commentOwnerMiddleware → req.comment.commentatorInfo.userId:',
+    req.comment.commentatorInfo.userId,
+  );
+
   if (req.comment.commentatorInfo.userId !== req.user?.id) {
-    res.status(HttpStatus.Forbidden);
+    console.log('⛔ Access denied: user is not the owner of the comment');
+    res.status(HttpStatus.Forbidden).send({ message: 'Forbidden' });
     return;
   }
+
+  console.log('✅ Access granted: user is the owner of the comment');
   next();
 }

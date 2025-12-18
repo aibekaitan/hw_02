@@ -51,7 +51,7 @@ export const postsQwRepository = {
   // },
   _getInViewComment(comment: WithId<CommentDB>): CommentViewModel {
     return {
-      id: comment._id.toString(),
+      id: comment._id,
       content: comment.content,
       commentatorInfo: comment.commentatorInfo,
       createdAt: comment.createdAt,

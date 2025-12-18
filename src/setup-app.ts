@@ -6,6 +6,7 @@ import { blogsRouter } from './blogs/routers/blogs.router';
 import { postsRouter } from './posts/routers/posts.router';
 import { usersRouter } from './users/api/users.router';
 import { authRouter } from './auth/api/auth.router';
+import { commentsRouter } from './comments/api/comments.router';
 
 export const setupApp = (app: Express) => {
   app.use(express.json());
@@ -21,6 +22,7 @@ export const setupApp = (app: Express) => {
   app.use('/posts', postsRouter);
   app.use('/users', usersRouter);
   app.use('/auth', authRouter);
+  app.use('/comments', commentsRouter);
   // setupSwagger(app);
   return app;
 };

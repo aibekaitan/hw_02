@@ -9,7 +9,7 @@ export async function commentExistMiddleware(
   res: Response,
   next: NextFunction,
 ) {
-  const comment = await commentsRepository.findById(req.params.id);
+  const comment = await commentsRepository.findById2(req.params.id);
   if (!comment) {
     res
       .status(HttpStatus.NotFound)

@@ -70,7 +70,7 @@ export const postsRepository = {
     const user = await usersRepository.findById(userId);
 
     const comment: CommentDB = {
-      id: new Date().toISOString(),
+      id: new ObjectId(),
       content: dto.content,
       postId: postId,
       commentatorInfo: {

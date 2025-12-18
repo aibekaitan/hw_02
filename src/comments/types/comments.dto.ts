@@ -4,13 +4,13 @@ export type CommentInputModel = {
   content: string;
 };
 export type CommentViewModel = {
-  id: string;
+  id: ObjectId;
   content: string;
   commentatorInfo: CommentatorInfo;
   createdAt: string;
 };
 export type CommentDB = {
-  id: string;
+  id: ObjectId;
   postId: string;
   content: string;
   commentatorInfo: CommentatorInfo;
