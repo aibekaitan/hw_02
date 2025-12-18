@@ -68,7 +68,7 @@ postsRouter
     },
   )
   .post(
-    '/:postId/comments',
+    '/:id/comments',
     accessTokenGuard,
     validatePostExists,
     bodyValidation,
@@ -80,7 +80,7 @@ postsRouter
       }
       const comment = await postsRepository.createComment(
         req.body,
-        req.params.postId,
+        req.params.id,
         req.user.id,
       );
       postsQwRepository._getInViewComment2(comment);
