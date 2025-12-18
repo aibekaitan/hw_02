@@ -8,6 +8,7 @@ import { inputValidation } from '../../common/validation/input.validation';
 import { commentExistMiddleware } from './middlewares/comment.exist.middleware';
 import { commentOwnerMiddleware } from './middlewares/comment.owner.middleware';
 import { objectIdValidation } from './middlewares/objectId.validation.middleware';
+import { postsQwRepository } from '../../posts/repositories/post.query.repository';
 
 export const commentsRouter = Router();
 
@@ -17,7 +18,7 @@ commentsRouter.get('/:id', async (req, res) => {
     res.sendStatus(404);
     return;
   }
-  res.status(200).send(comment);
+  res.status(200).send(postsQwRepository._getInViewComment(comment));
 });
 
 commentsRouter.delete(
