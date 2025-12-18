@@ -19,7 +19,7 @@ export const commentsRepository = {
     dto: CommentInputModel,
   ): Promise<UpdateResult<CommentInputModel> | null> {
     return commentsCollection.updateOne(
-      { _id: new ObjectId(id) },
+      { id: id },
       {
         $set: {
           content: dto.content,
