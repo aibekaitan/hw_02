@@ -50,3 +50,16 @@ export const validateBlogExists = async (
 
   next();
 };
+export const validatePostExists = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const postId = req.params.id;
+  const post = await postsRepository.findById(postId);
+  if (!post) {
+    res.sendStatus(HttpStatus.NotFound); // 404
+    return;
+  }
+  next();
+};

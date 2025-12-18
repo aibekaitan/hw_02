@@ -4,6 +4,7 @@ import { superAdminGuardMiddleware } from '../middlewares/super-admin.guard-midd
 import {
   postsMiddlewares,
   validateBlogExists,
+  validatePostExists,
   validatePostInput,
 } from '../middlewares/posts-middlewares';
 import { HttpStatus } from '../../core/types/http-statuses';
@@ -68,6 +69,7 @@ postsRouter
   .post(
     '/:postId/comments',
     accessTokenGuard,
+    validatePostExists,
     bodyValidation,
     inputValidation,
     async (req: Request, res: Response) => {
@@ -88,7 +90,7 @@ postsRouter
   )
   .get(
     '/:id/comments',
-    baseAuthGuard,
+    validatePostExists,
     pageNumberValidation,
     async (
       req: RequestWithParamsAndQuery<ParamsType, CommentsQueryFieldsType>,
