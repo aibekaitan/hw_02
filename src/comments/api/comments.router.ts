@@ -12,7 +12,7 @@ import { objectIdValidation } from './middlewares/objectId.validation.middleware
 export const commentsRouter = Router();
 
 commentsRouter.get('/:id', async (req, res) => {
-  const comment = await commentsRepository.findById(req.params.id);
+  const comment = await commentsRepository.findById2(req.params.id);
   if (!comment) {
     res.sendStatus(404);
     return;

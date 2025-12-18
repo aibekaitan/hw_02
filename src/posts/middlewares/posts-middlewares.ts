@@ -55,7 +55,7 @@ export const validatePostExists = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const postId = req.params.postId;
+  const postId = req.params.id;
   const post = await postsRepository.findById(postId);
   if (!post) {
     res.sendStatus(HttpStatus.NotFound); // 404

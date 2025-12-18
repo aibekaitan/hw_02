@@ -16,7 +16,6 @@ export const postsQwRepository = {
   ): Promise<IPagination<CommentViewModel[]>> {
     const { sortBy, sortDirection, pageSize, pageNumber } = sortQueryDto;
     const filter: any = { postId };
-
     const totalCount = await commentsCollection.countDocuments(filter);
 
     const comments = await commentsCollection

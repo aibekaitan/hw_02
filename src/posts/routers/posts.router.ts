@@ -28,6 +28,7 @@ import { accessTokenGuard } from '../../auth/api/guards/access.token.guard';
 import { mapToCommentOutput } from '../../comments/utils/map.comment.without.id';
 import { bodyValidation } from '../middlewares/body.validation';
 import { inputValidation } from '../../common/validation/input.validation';
+import { ObjectId } from 'mongodb';
 
 export const postsRouter = Router();
 
@@ -89,7 +90,7 @@ postsRouter
     },
   )
   .get(
-    '/:postId/comments',
+    '/:id/comments',
     validatePostExists,
     pageNumberValidation,
     async (
