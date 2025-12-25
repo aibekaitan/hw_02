@@ -86,13 +86,14 @@ authRouter.post(
   inputValidation,
   async (req: Request, res: Response) => {
     const { code } = req.body;
+
     //some logic
     const result = await authService.confirmEmail(code);
     // console.log(result.status);
     if (result.status !== ResultStatus.Success) {
-      res
-        .status(resultCodeToHttpException(result.status))
-        .send(result.extensions);
+      res.status(resultCodeToHttpException(result.status)).json({
+        errorsMessages: result.extensions,
+      });
       return;
     }
     res.sendStatus(HttpStatuses.NoContent);
