@@ -33,6 +33,15 @@ export const usersRepository = {
       { $set: { 'emailConfirmation.isConfirmed': true } },
     );
   },
+  async updateConfirmationCode(
+    _id: ObjectId,
+    newCode: string,
+  ): Promise<UpdateResult<User>> {
+    return usersCollection.updateOne(
+      { _id },
+      { $set: { 'emailConfirmation.confirmationCode': newCode } },
+    );
+  },
   async doesExistByLoginOrEmail(
     login: string,
     email: string,

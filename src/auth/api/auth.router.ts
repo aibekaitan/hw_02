@@ -22,6 +22,7 @@ import { routersPaths } from '../../common/path/paths';
 import { usersRepository } from '../../users/infrastructure/user.repository';
 import { nodemailerService } from '../adapters/nodemailer.service';
 import { emailExamples } from '../adapters/emailExamples';
+import { randomUUID } from 'crypto';
 
 export const authRouter = Router();
 
@@ -77,7 +78,7 @@ authRouter.post(
       return;
     }
 
-    res.sendStatus(HttpStatuses.Created);
+    res.sendStatus(HttpStatuses.NoContent);
   },
 );
 
@@ -88,14 +89,14 @@ authRouter.post(
     const { code } = req.body;
     //some logic
     const result = await authService.confirmEmail(code);
-    console.log(result.status);
+    // console.log(result.status);
     if (result.status !== ResultStatus.Success) {
       res
         .status(resultCodeToHttpException(result.status))
         .send(result.extensions);
       return;
     }
-    res.sendStatus(HttpStatuses.Created);
+    res.sendStatus(HttpStatuses.NoContent);
   },
 );
 
@@ -120,11 +121,16 @@ authRouter.post(
       });
       return;
     }
+    user.emailConfirmation.confirmationCode = randomUUID();
+    await usersRepository.updateConfirmationCode(
+      user._id,
+      user.emailConfirmation.confirmationCode,
+    );
     await nodemailerService.sendEmail(
       user.email,
       user.emailConfirmation.confirmationCode,
       emailExamples.registrationEmail,
     );
-    res.sendStatus(HttpStatuses.Created);
+    res.sendStatus(HttpStatuses.NoContent);
   },
 );
