@@ -114,6 +114,7 @@ export const authService = {
 
     await usersRepository.create(newUser);
     expect.getState().code = newUser.emailConfirmation.confirmationCode;
+
     nodemailerService
       .sendEmail(
         newUser.email,
@@ -121,6 +122,7 @@ export const authService = {
         emailExamples.registrationEmail,
       )
       .catch((er) => console.error('error in send email:', er));
+
     return {
       status: ResultStatus.Success,
       data: newUser,
