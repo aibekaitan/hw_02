@@ -40,7 +40,6 @@ authRouter.post(
         .send(result.extensions);
       return;
     }
-    expect.getState().accessToken = result.data!.accessToken;
     res
       .status(HttpStatuses.Success)
       .send({ accessToken: result.data!.accessToken });

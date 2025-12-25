@@ -113,7 +113,6 @@ export const authService = {
     const newUser = new User(login, email, passwordHash);
 
     await usersRepository.create(newUser);
-    expect.getState().code = newUser.emailConfirmation.confirmationCode;
 
     nodemailerService
       .sendEmail(
