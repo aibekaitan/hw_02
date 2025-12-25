@@ -5,6 +5,9 @@ import { jwtService } from '../adapters/jwt.service';
 import { usersRepository } from '../../users/infrastructure/user.repository';
 import { bcryptService } from '../adapters/bcrypt.service';
 import { IUserDB } from '../../users/types/user.db.interface';
+import { nodemailerService } from '../adapters/nodemailer.service';
+import { emailExamples } from '../adapters/emailExamples';
+import { User } from '../../users/domain/user.entity';
 
 export const authService = {
   async loginUser(
@@ -90,5 +93,69 @@ export const authService = {
       console.error('Error in checkUserCredentials:', error);
       throw error;
     }
+  },
+  async registerUser(
+    login: string,
+    pass: string,
+    email: string,
+  ): Promise<Result<User | null>> {
+    const user = await usersRepository.doesExistByLoginOrEmail(login, email);
+    if (user)
+      return {
+        status: ResultStatus.BadRequest,
+        errorMessage: 'Bad Request',
+        data: null,
+        extensions: [{ field: 'loginOrEmail', message: 'Already Registered' }],
+      };
+
+    const passwordHash = await bcryptService.generateHash(pass);
+
+    const newUser = new User(login, email, passwordHash);
+
+    await usersRepository.create(newUser);
+
+    nodemailerService
+      .sendEmail(
+        newUser.email,
+        newUser.emailConfirmation.confirmationCode,
+        emailExamples.registrationEmail,
+      )
+      .catch((er) => console.error('error in send email:', er));
+    return {
+      status: ResultStatus.Success,
+      data: newUser,
+      extensions: [],
+    };
+  },
+
+  async confirmEmail(code: string): Promise<Result<any>> {
+    //some logic
+    let user = await usersRepository.findUserByConfirmationCode(code);
+    if (!user) {
+      return {
+        status: ResultStatus.BadRequest,
+        errorMessage: 'Bad Request',
+        data: null,
+        extensions: [{ field: 'code', message: 'Incorrect code' }],
+      };
+    }
+    const isUuid = new RegExp(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
+    ).test(code);
+
+    if (!isUuid) {
+      return {
+        status: ResultStatus.BadRequest,
+        errorMessage: 'Bad Request',
+        data: null,
+        extensions: [{ field: 'code', message: 'Incorrect code' }],
+      };
+    }
+    await usersRepository.updateConfirmation(user._id);
+    return {
+      status: ResultStatus.Success,
+      data: null,
+      extensions: [],
+    };
   },
 };

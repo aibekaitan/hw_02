@@ -13,10 +13,15 @@ export const usersService = {
       email,
       passwordHash,
       createdAt: new Date(),
+      emailConfirmation: {
+        //default value can be nullable
+        confirmationCode: '',
+        isConfirmed: true,
+        //default value can be nullable
+        expirationDate: new Date(),
+      },
     };
-    const newUserId = await usersRepository.create(newUser);
-
-    return newUserId;
+    return await usersRepository.create(newUser);
   },
 
   async delete(id: string): Promise<boolean> {

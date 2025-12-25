@@ -8,7 +8,9 @@ export const nodemailerService = {
     template: (code: string) => string,
   ): Promise<boolean> {
     let transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false, // true для 465
       auth: {
         user: appConfig.EMAIL,
         pass: appConfig.EMAIL_PASS,
@@ -16,7 +18,10 @@ export const nodemailerService = {
     });
 
     let info = await transporter.sendMail({
-      from: '"Kek 👻" <codeSender>',
+      from: {
+        name: 'Kek 👻',
+        address: appConfig.EMAIL,
+      },
       to: email,
       subject: 'Your code is here',
       html: template(code), // html body

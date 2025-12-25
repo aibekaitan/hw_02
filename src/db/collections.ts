@@ -7,10 +7,11 @@ import {
   CommentInputModel,
   CommentViewModel,
 } from '../comments/types/comments.dto';
+import { User } from '../users/domain/user.entity';
 
 export let blogsCollection: Collection<Blog>;
 export let postsCollection: Collection<Post>;
-export let usersCollection: Collection<IUserDB>;
+export let usersCollection: Collection<User>;
 export let commentsCollection: Collection<CommentDB>;
 
 export function setBlogsCollection(collection: Collection<Blog>) {
@@ -21,7 +22,7 @@ export function setPostsCollection(collection: Collection<Post>) {
   postsCollection = collection;
 }
 
-export function setUsersCollection(collection: Collection<IUserDB>) {
+export function setUsersCollection(collection: Collection<User>) {
   usersCollection = collection;
 }
 

@@ -1,4 +1,4 @@
-import { Response, Router } from 'express';
+import { Response, Request, Router } from 'express';
 import {
   RequestWithBody,
   RequestWithUserId,
@@ -15,6 +15,13 @@ import { HttpStatuses } from '../../common/types/httpStatuses';
 import { usersQwRepository } from '../../users/infrastructure/user.query.repo';
 import { ResultStatus } from '../../common/result/resultCode';
 import { resultCodeToHttpException } from '../../common/result/resultCodeToHttpException';
+import { loginValidation } from '../../users/api/middlewares/login.validation';
+import { emailValidation } from '../../users/api/middlewares/email.validation';
+import { CreateUserDto } from '../../users/types/create-user.dto';
+import { routersPaths } from '../../common/path/paths';
+import { usersRepository } from '../../users/infrastructure/user.repository';
+import { nodemailerService } from '../adapters/nodemailer.service';
+import { emailExamples } from '../adapters/emailExamples';
 
 export const authRouter = Router();
 
@@ -51,5 +58,73 @@ authRouter.get(
     const me = await usersQwRepository.findById(userId);
 
     res.status(HttpStatuses.Success).send(me);
+  },
+);
+authRouter.post(
+  '/registration',
+  passwordValidation,
+  loginValidation,
+  emailValidation,
+  inputValidation,
+  async (req: RequestWithBody<CreateUserDto>, res: Response) => {
+    const { login, email, password } = req.body;
+
+    const result = await authService.registerUser(login, password, email);
+    if (result.status !== ResultStatus.Success) {
+      res
+        .status(resultCodeToHttpException(result.status))
+        .send(result.extensions);
+      return;
+    }
+
+    res.sendStatus(HttpStatuses.Created);
+  },
+);
+
+authRouter.post(
+  '/registration-confirmation',
+  inputValidation,
+  async (req: Request, res: Response) => {
+    const { code } = req.body;
+    //some logic
+    const result = await authService.confirmEmail(code);
+    console.log(result.status);
+    if (result.status !== ResultStatus.Success) {
+      res
+        .status(resultCodeToHttpException(result.status))
+        .send(result.extensions);
+      return;
+    }
+    res.sendStatus(HttpStatuses.Created);
+  },
+);
+
+authRouter.post(
+  '/registration-email-resending',
+  inputValidation,
+  async (req: Request, res: Response) => {
+    const { email } = req.body;
+    //some logic
+    const user = await usersRepository.findByLoginOrEmail(email);
+    if (!user) {
+      res.status(400).send({
+        errorsMessages: [{ field: 'email', message: 'User not found' }],
+      });
+      return;
+    }
+    if (user.emailConfirmation.isConfirmed) {
+      res.status(400).send({
+        errorsMessages: [
+          { field: 'email', message: 'Email already confirmed' },
+        ],
+      });
+      return;
+    }
+    await nodemailerService.sendEmail(
+      user.email,
+      user.emailConfirmation.confirmationCode,
+      emailExamples.registrationEmail,
+    );
+    res.sendStatus(HttpStatuses.Created);
   },
 );
