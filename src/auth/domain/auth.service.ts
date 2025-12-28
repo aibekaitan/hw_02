@@ -37,7 +37,10 @@ export const authService = {
       const refreshToken = await jwtService.createRefreshToken(
         result.data!._id.toString(),
       );
-
+      await usersRepository.updateRefreshToken(
+        result.data!._id.toString(),
+        refreshToken,
+      );
       return {
         status: ResultStatus.Success,
         data: { accessToken, refreshToken },

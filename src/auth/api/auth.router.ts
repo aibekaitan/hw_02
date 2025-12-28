@@ -46,6 +46,7 @@ authRouter.post(
       httpOnly: true,
       secure: true,
     });
+
     res
       .status(HttpStatuses.Success)
       .send({ accessToken: result.data!.accessToken });
