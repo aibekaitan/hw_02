@@ -44,9 +44,7 @@ authRouter.post(
     }
     res.cookie('jwt', result.data!.refreshToken, {
       httpOnly: true,
-      sameSite: 'none',
       secure: false,
-      maxAge: 24 * 60 * 60 * 1000,
     });
     res
       .status(HttpStatuses.Success)
