@@ -45,7 +45,7 @@ authRouter.post(
     res.cookie('jwt', result.data!.refreshToken, {
       httpOnly: true,
       sameSite: 'none',
-      secure: true,
+      secure: false,
       maxAge: 24 * 60 * 60 * 1000,
     });
     res
@@ -164,20 +164,8 @@ authRouter.post('/refresh-token', async (req: Request, res: Response) => {
 });
 authRouter.post(
   '/logout',
-  passwordValidation,
-  loginOrEmailValidation,
-  inputValidation,
   async (req: RequestWithBody<LoginInputModel>, res: Response) => {
-    const { loginOrEmail, password } = req.body;
-    const result = await authService.loginUser(loginOrEmail, password);
-    if (result.status !== ResultStatus.Success) {
-      res
-        .status(resultCodeToHttpException(result.status))
-        .send(result.extensions);
-      return;
-    }
-    res
-      .status(HttpStatuses.Success)
-      .send({ accessToken: result.data!.accessToken });
+    const refreshToken = req.cookies.jwt;
+    res.status(HttpStatuses.Success).send();
   },
 );
