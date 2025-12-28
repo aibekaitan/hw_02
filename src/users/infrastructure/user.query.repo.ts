@@ -1,4 +1,4 @@
-import { IUserView } from '../types/user.view.interface';
+import { IUserView, IUserView2 } from '../types/user.view.interface';
 import { ObjectId, WithId } from 'mongodb';
 import { IUserDB } from '../types/user.db.interface';
 import { IPagination } from '../../common/types/pagination';
@@ -58,12 +58,23 @@ export const usersQwRepository = {
     const user = await usersCollection.findOne({ _id: new ObjectId(id) });
     return user ? this._getInView(user) : null;
   },
+  async findById2(id: string): Promise<IUserView2 | null> {
+    const user = await usersCollection.findOne({ _id: new ObjectId(id) });
+    return user ? this._getInView2(user) : null;
+  },
   _getInView(user: WithId<IUserDB>): IUserView {
     return {
       id: user._id.toString(),
       login: user.login,
       email: user.email,
       createdAt: user.createdAt.toISOString(),
+    };
+  },
+  _getInView2(user: WithId<IUserDB>): IUserView2 {
+    return {
+      userId: user._id.toString(),
+      login: user.login,
+      email: user.email,
     };
   },
   _checkObjectId(id: string): boolean {

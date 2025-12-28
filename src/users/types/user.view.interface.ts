@@ -4,3 +4,8 @@ export interface IUserView {
   email: string;
   createdAt: string;
 }
+export interface IUserView2 {
+  userId: string;
+  login: string;
+  email: string;
+}

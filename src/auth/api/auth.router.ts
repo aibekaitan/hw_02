@@ -61,7 +61,7 @@ authRouter.get(
       res.sendStatus(HttpStatuses.Unauthorized);
       return;
     }
-    const me = await usersQwRepository.findById(userId);
+    const me = await usersQwRepository.findById2(userId);
 
     res.status(HttpStatuses.Success).send(me);
   },
@@ -158,10 +158,19 @@ authRouter.post('/refresh-token', async (req: Request, res: Response) => {
   });
   res.status(HttpStatuses.Success).send({ accessToken: newAccessToken });
 });
-authRouter.post(
-  '/logout',
-  async (req: RequestWithBody<LoginInputModel>, res: Response) => {
-    const refreshToken = req.cookies.refreshToken;
-    res.status(HttpStatuses.Success).send();
-  },
-);
+authRouter.post('/logout', async (req: Request, res: Response) => {
+  const refreshToken = req.cookies.refreshToken;
+  if (!refreshToken) {
+    return res.sendStatus(HttpStatuses.Unauthorized);
+  }
+  const payload = await jwtService.verifyToken(refreshToken);
+
+  if (!payload) {
+    return res.sendStatus(HttpStatuses.Unauthorized);
+  }
+  res.clearCookie('refreshToken', {
+    httpOnly: true,
+    secure: false,
+  });
+  res.status(HttpStatuses.Success).send();
+});

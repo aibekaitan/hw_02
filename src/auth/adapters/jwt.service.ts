@@ -9,9 +9,9 @@ export const jwtService = {
     });
   },
   async createRefreshToken(userId: string): Promise<string> {
-    console.log(appConfig.AC_TIME);
+    console.log(appConfig.RT_TIME);
     return jwt.sign({ userId }, appConfig.AC_SECRET, {
-      expiresIn: Number(appConfig.AC_TIME),
+      expiresIn: Number(appConfig.RT_TIME),
     });
   },
   async decodeToken(token: string): Promise<any> {
