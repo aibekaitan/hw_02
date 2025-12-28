@@ -152,9 +152,11 @@ authRouter.post('/refresh-token', async (req: Request, res: Response) => {
   const myUser = await usersRepository.findById(user.userId);
   if (!myUser) {
     res.status(401).send({});
+    return;
   }
   if (myUser?.refreshToken !== refreshToken) {
     res.status(401).send({});
+    return;
   }
   const newAccessToken = await jwtService.createToken(user.userId);
   const newRefreshToken = await jwtService.createRefreshToken(user.userId);
