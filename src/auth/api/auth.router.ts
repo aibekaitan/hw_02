@@ -149,9 +149,20 @@ authRouter.post('/refresh-token', async (req: Request, res: Response) => {
     });
     return;
   }
+  const myUser = await usersRepository.findById(user.userId);
+  if (!myUser) {
+    res.status(401).send({});
+  }
+  if (myUser?.refreshToken !== refreshToken) {
+    res.status(401).send({});
+  }
   const newAccessToken = await jwtService.createToken(user.userId);
   const newRefreshToken = await jwtService.createRefreshToken(user.userId);
-
+  await usersRepository.updateRefreshToken(user.userId, newRefreshToken);
+  res.clearCookie('refreshToken', {
+    httpOnly: true,
+    secure: false,
+  });
   res.cookie('refreshToken', newRefreshToken, {
     httpOnly: true,
     secure: true,
@@ -172,5 +183,5 @@ authRouter.post('/logout', async (req: Request, res: Response) => {
     httpOnly: true,
     secure: false,
   });
-  res.status(HttpStatuses.Success).send();
+  res.status(HttpStatuses.NoContent).send();
 });

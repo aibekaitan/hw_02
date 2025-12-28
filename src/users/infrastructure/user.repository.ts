@@ -15,6 +15,12 @@ export const usersRepository = {
   async findById(id: string): Promise<WithId<User> | null> {
     return usersCollection.findOne({ _id: new ObjectId(id) });
   },
+  async updateRefreshToken(userId: string, token: string): Promise<void> {
+    await usersCollection.updateOne(
+      { _id: new ObjectId(userId) },
+      { $set: { refreshToken: token } },
+    );
+  },
   async findUserByConfirmationCode(
     emailConfirmationCode: string,
   ): Promise<WithId<User> | null> {

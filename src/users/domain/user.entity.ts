@@ -5,6 +5,7 @@ export class User {
   email: string;
   passwordHash: string;
   createdAt: Date;
+  refreshToken: string;
   emailConfirmation: {
     confirmationCode: string;
     expirationDate: Date;
@@ -15,6 +16,7 @@ export class User {
     this.login = login;
     this.email = email;
     this.passwordHash = hash;
+    this.refreshToken = '';
     this.createdAt = new Date();
     this.emailConfirmation = {
       expirationDate: new Date(),
