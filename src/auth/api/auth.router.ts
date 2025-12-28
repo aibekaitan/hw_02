@@ -161,10 +161,6 @@ authRouter.post('/refresh-token', async (req: Request, res: Response) => {
   const newAccessToken = await jwtService.createToken(user.userId);
   const newRefreshToken = await jwtService.createRefreshToken(user.userId);
   await usersRepository.updateRefreshToken(user.userId, newRefreshToken);
-  res.clearCookie('refreshToken', {
-    httpOnly: true,
-    secure: true,
-  });
   res.cookie('refreshToken', newRefreshToken, {
     httpOnly: true,
     secure: true,
@@ -190,9 +186,5 @@ authRouter.post('/logout', async (req: Request, res: Response) => {
     return;
   }
   await usersRepository.updateRefreshToken(payload.userId, '');
-  res.clearCookie('refreshToken', {
-    httpOnly: true,
-    secure: true,
-  });
   res.status(HttpStatuses.NoContent).send();
 });
