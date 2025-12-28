@@ -23,6 +23,8 @@ import { usersRepository } from '../../users/infrastructure/user.repository';
 import { nodemailerService } from '../adapters/nodemailer.service';
 import { emailExamples } from '../adapters/emailExamples';
 import { randomUUID } from 'crypto';
+import { jwtService } from '../adapters/jwt.service';
+import cookieParser from 'cookie-parser';
 
 export const authRouter = Router();
 
@@ -40,6 +42,12 @@ authRouter.post(
         .send(result.extensions);
       return;
     }
+    res.cookie('jwt', result.data!.refreshToken, {
+      httpOnly: true,
+      sameSite: 'none',
+      secure: true,
+      maxAge: 24 * 60 * 60 * 1000,
+    });
     res
       .status(HttpStatuses.Success)
       .send({ accessToken: result.data!.accessToken });
@@ -132,5 +140,44 @@ authRouter.post(
       emailExamples.registrationEmail,
     );
     res.sendStatus(HttpStatuses.NoContent);
+  },
+);
+authRouter.post('/refresh-token', async (req: Request, res: Response) => {
+  const refreshToken = req.cookies.jwt;
+  const user = await jwtService.verifyToken(refreshToken);
+  if (!user) {
+    res.status(401).send({
+      errorsMessages: [{ field: 'email', message: 'User not found' }],
+    });
+    return;
+  }
+  const newAccessToken = await jwtService.createToken(user.userId);
+  const newRefreshToken = await jwtService.createRefreshToken(user.userId);
+
+  res.cookie('jwt', newRefreshToken, {
+    httpOnly: true,
+    sameSite: 'none',
+    secure: true,
+    maxAge: 24 * 60 * 60 * 1000,
+  });
+  res.status(HttpStatuses.Success).send({ accessToken: newAccessToken });
+});
+authRouter.post(
+  '/logout',
+  passwordValidation,
+  loginOrEmailValidation,
+  inputValidation,
+  async (req: RequestWithBody<LoginInputModel>, res: Response) => {
+    const { loginOrEmail, password } = req.body;
+    const result = await authService.loginUser(loginOrEmail, password);
+    if (result.status !== ResultStatus.Success) {
+      res
+        .status(resultCodeToHttpException(result.status))
+        .send(result.extensions);
+      return;
+    }
+    res
+      .status(HttpStatuses.Success)
+      .send({ accessToken: result.data!.accessToken });
   },
 );

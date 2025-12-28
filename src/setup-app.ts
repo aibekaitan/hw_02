@@ -7,10 +7,11 @@ import { postsRouter } from './posts/routers/posts.router';
 import { usersRouter } from './users/api/users.router';
 import { authRouter } from './auth/api/auth.router';
 import { commentsRouter } from './comments/api/comments.router';
+import cookieParser from 'cookie-parser';
 
 export const setupApp = (app: Express) => {
   app.use(express.json());
-
+  app.use(cookieParser());
   app.get('/', (req: Request, res: Response) => {
     res.status(200).send('hello world!!!');
   });
@@ -23,6 +24,7 @@ export const setupApp = (app: Express) => {
   app.use('/users', usersRouter);
   app.use('/auth', authRouter);
   app.use('/comments', commentsRouter);
+
   // setupSwagger(app);
   return app;
 };

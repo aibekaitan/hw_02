@@ -13,7 +13,7 @@ export const authService = {
   async loginUser(
     loginOrEmail: string,
     password: string,
-  ): Promise<Result<{ accessToken: string } | null>> {
+  ): Promise<Result<{ accessToken: string; refreshToken: string } | null>> {
     try {
       console.log('loginUser called with:', { loginOrEmail, password });
 
@@ -34,10 +34,13 @@ export const authService = {
       const accessToken = await jwtService.createToken(
         result.data!._id.toString(),
       );
+      const refreshToken = await jwtService.createRefreshToken(
+        result.data!._id.toString(),
+      );
 
       return {
         status: ResultStatus.Success,
-        data: { accessToken },
+        data: { accessToken, refreshToken },
         extensions: [],
       };
     } catch (error) {
