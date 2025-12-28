@@ -42,7 +42,7 @@ authRouter.post(
         .send(result.extensions);
       return;
     }
-    res.cookie('jwt', result.data!.refreshToken, {
+    res.cookie('refreshToken', result.data!.refreshToken, {
       httpOnly: true,
       secure: false,
     });
@@ -141,7 +141,7 @@ authRouter.post(
   },
 );
 authRouter.post('/refresh-token', async (req: Request, res: Response) => {
-  const refreshToken = req.cookies.jwt;
+  const refreshToken = req.cookies.refreshToken;
   const user = await jwtService.verifyToken(refreshToken);
   if (!user) {
     res.status(401).send({
@@ -152,18 +152,16 @@ authRouter.post('/refresh-token', async (req: Request, res: Response) => {
   const newAccessToken = await jwtService.createToken(user.userId);
   const newRefreshToken = await jwtService.createRefreshToken(user.userId);
 
-  res.cookie('jwt', newRefreshToken, {
+  res.cookie('refreshToken', newRefreshToken, {
     httpOnly: true,
-    sameSite: 'none',
-    secure: true,
-    maxAge: 24 * 60 * 60 * 1000,
+    secure: false,
   });
   res.status(HttpStatuses.Success).send({ accessToken: newAccessToken });
 });
 authRouter.post(
   '/logout',
   async (req: RequestWithBody<LoginInputModel>, res: Response) => {
-    const refreshToken = req.cookies.jwt;
+    const refreshToken = req.cookies.refreshToken;
     res.status(HttpStatuses.Success).send();
   },
 );
