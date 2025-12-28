@@ -46,7 +46,6 @@ authRouter.post(
       httpOnly: true,
       secure: true,
     });
-
     res
       .status(HttpStatuses.Success)
       .send({ accessToken: result.data!.accessToken });
@@ -164,7 +163,7 @@ authRouter.post('/refresh-token', async (req: Request, res: Response) => {
   await usersRepository.updateRefreshToken(user.userId, newRefreshToken);
   res.clearCookie('refreshToken', {
     httpOnly: true,
-    secure: false,
+    secure: true,
   });
   res.cookie('refreshToken', newRefreshToken, {
     httpOnly: true,
@@ -178,13 +177,22 @@ authRouter.post('/logout', async (req: Request, res: Response) => {
     return res.sendStatus(HttpStatuses.Unauthorized);
   }
   const payload = await jwtService.verifyToken(refreshToken);
-
   if (!payload) {
     return res.sendStatus(HttpStatuses.Unauthorized);
   }
+  const myUser = await usersRepository.findById(payload.userId);
+  if (!myUser) {
+    res.status(401).send({});
+    return;
+  }
+  if (myUser?.refreshToken !== refreshToken) {
+    res.status(401).send({});
+    return;
+  }
+  await usersRepository.updateRefreshToken(payload.userId, '');
   res.clearCookie('refreshToken', {
     httpOnly: true,
-    secure: false,
+    secure: true,
   });
   res.status(HttpStatuses.NoContent).send();
 });
