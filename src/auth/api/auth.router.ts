@@ -44,7 +44,7 @@ authRouter.post(
     }
     res.cookie('refreshToken', result.data!.refreshToken, {
       httpOnly: true,
-      secure: false,
+      secure: true,
     });
     res
       .status(HttpStatuses.Success)
@@ -154,7 +154,7 @@ authRouter.post('/refresh-token', async (req: Request, res: Response) => {
 
   res.cookie('refreshToken', newRefreshToken, {
     httpOnly: true,
-    secure: false,
+    secure: true,
   });
   res.status(HttpStatuses.Success).send({ accessToken: newAccessToken });
 });
