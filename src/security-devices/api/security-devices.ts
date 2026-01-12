@@ -15,7 +15,7 @@ export const securityDevicesRouter = Router({});
 
 securityDevicesRouter.get(
   '/',
-  accessTokenGuard,
+  // accessTokenGuard,
   async (req: RequestWithUserId<IdType>, res: Response) => {
     const userId = req.user?.id;
 
@@ -31,7 +31,7 @@ securityDevicesRouter.get(
 
 securityDevicesRouter.delete(
   '/',
-  accessTokenGuard,
+  // accessTokenGuard,
   async (req: RequestWithUserId<IdType>, res: Response) => {
     const userId = req.user?.id;
     const currentDeviceId = req.context?.deviceId;
@@ -57,7 +57,7 @@ securityDevicesRouter.delete(
 
 securityDevicesRouter.delete(
   '/:deviceId',
-  accessTokenGuard,
+  // accessTokenGuard,
   async (
     req: RequestWithParams<{ deviceId: string }> & RequestWithUserId<IdType>,
     res: Response,
