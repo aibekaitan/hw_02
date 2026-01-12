@@ -5,6 +5,8 @@ import {
   blogsCollection,
   commentsCollection,
   postsCollection,
+  requestLogsCollection,
+  securityDevicesCollection,
   usersCollection,
 } from '../../db/collections';
 
@@ -19,5 +21,7 @@ testingRouter.delete('/all-data', async (req: Request, res: Response) => {
   await postsCollection.deleteMany({});
   await usersCollection.deleteMany({});
   await commentsCollection.deleteMany({});
+  await securityDevicesCollection.deleteMany({});
+  await requestLogsCollection.deleteMany({});
   res.sendStatus(HttpStatus.NoContent);
 });
