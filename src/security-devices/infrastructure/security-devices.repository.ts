@@ -29,6 +29,7 @@ export const securityDevicesRepository = {
           title: device.title,
           lastActiveDate: device.lastActiveDate,
           expirationDate: device.expirationDate,
+          refreshToken: device.refreshToken,
           // createdAt: new Date(),
         },
       },
