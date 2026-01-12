@@ -70,6 +70,14 @@ authRouter.post(
   requestLoggerAndLimiter,
   async (req: Request, res: Response) => {
     const refreshToken = req.cookies.refreshToken;
+
+    const user = await jwtService.verifyRefreshToken(refreshToken);
+    if (!user) {
+      res.status(401).send({
+        errorsMessages: [{ field: 'email', message: 'User not found' }],
+      });
+      return;
+    }
     if (!refreshToken) {
       return res.sendStatus(HttpStatuses.Unauthorized);
     }
