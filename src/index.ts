@@ -17,7 +17,7 @@ const bootstrap = async () => {
   const app = express();
   setupApp(app);
   const PORT = SETTINGS.PORT;
-
+  app.set('trust proxy', true);
   await runDB(SETTINGS.MONGO_URL || 'mongodb://127.0.0.1:27017');
   setBlogsCollection(client.db('my_database').collection('blogs'));
   setPostsCollection(client.db('my_database').collection('posts'));

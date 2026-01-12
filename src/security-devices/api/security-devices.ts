@@ -10,12 +10,13 @@ import { securityDevicesService } from '../domain/security-devices.service'; // 
 import { resultCodeToHttpException } from '../../common/result/resultCodeToHttpException';
 import { ResultStatus } from '../../common/result/resultCode';
 import { DeviceViewModel } from './models/device.view.model';
+import { refreshTokenGuard } from '../../auth/api/guards/refresh.token.guard';
 
 export const securityDevicesRouter = Router({});
 
 securityDevicesRouter.get(
   '/',
-  // accessTokenGuard,
+  refreshTokenGuard,
   async (req: RequestWithUserId<IdType>, res: Response) => {
     const userId = req.user?.id;
 
@@ -31,7 +32,7 @@ securityDevicesRouter.get(
 
 securityDevicesRouter.delete(
   '/',
-  // accessTokenGuard,
+  refreshTokenGuard,
   async (req: RequestWithUserId<IdType>, res: Response) => {
     const userId = req.user?.id;
     const currentDeviceId = req.context?.deviceId;
@@ -57,7 +58,7 @@ securityDevicesRouter.delete(
 
 securityDevicesRouter.delete(
   '/:deviceId',
-  // accessTokenGuard,
+  refreshTokenGuard,
   async (
     req: RequestWithParams<{ deviceId: string }> & RequestWithUserId<IdType>,
     res: Response,
