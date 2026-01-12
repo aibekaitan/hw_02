@@ -13,7 +13,7 @@ export const refreshTokenGuard = async (
     return res.sendStatus(401);
   }
 
-  const payload = await jwtService.verifyToken(token);
+  const payload = await jwtService.verifyRefreshToken(token);
   if (!payload) {
     return res.sendStatus(401);
   }
