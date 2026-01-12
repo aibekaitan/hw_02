@@ -39,6 +39,13 @@ export const authService = {
 
       const deviceId = randomUUID();
 
+      console.log('Creating tokens for user:', userId, 'device:', deviceId);
+      const accessToken = await jwtService.createToken(userId, deviceId);
+      const refreshToken = await jwtService.createRefreshToken(
+        userId,
+        deviceId,
+      );
+
       await securityDevicesRepository.upsertDevice({
         userId,
         deviceId,
@@ -46,14 +53,8 @@ export const authService = {
         title,
         lastActiveDate: new Date(),
         expirationDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        refreshToken: refreshToken,
       });
-
-      console.log('Creating tokens for user:', userId, 'device:', deviceId);
-      const accessToken = await jwtService.createToken(userId, deviceId);
-      const refreshToken = await jwtService.createRefreshToken(
-        userId,
-        deviceId,
-      );
 
       return {
         status: ResultStatus.Success,
@@ -207,16 +208,6 @@ export const authService = {
       };
     }
 
-    // ✅ Только обновляем lastActiveDate и expirationDate
-    await securityDevicesRepository.upsertDevice({
-      userId: payload.userId,
-      deviceId: payload.deviceId,
-      ip: device.ip, // оставляем оригинальный ip
-      title: device.title, // НЕ меняем title
-      lastActiveDate: new Date(),
-      expirationDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-    });
-
     const newAccessToken = await jwtService.createToken(
       payload.userId,
       payload.deviceId,
@@ -225,6 +216,15 @@ export const authService = {
       payload.userId,
       payload.deviceId,
     );
+    await securityDevicesRepository.upsertDevice({
+      userId: payload.userId,
+      deviceId: payload.deviceId,
+      ip: device.ip,
+      title: device.title,
+      lastActiveDate: new Date(),
+      expirationDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      refreshToken: newRefreshToken,
+    });
 
     return {
       status: ResultStatus.Success,

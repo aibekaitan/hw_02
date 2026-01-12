@@ -28,6 +28,12 @@ export const refreshTokenGuard = async (
   if (!device || device.userId !== userId) {
     return res.sendStatus(401);
   }
+  if (device.refreshToken !== token) {
+    return res.sendStatus(401);
+  }
+  if (device.expirationDate < new Date()) {
+    return res.sendStatus(401);
+  }
 
   req.user = { id: userId };
   req.context = { deviceId };

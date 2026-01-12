@@ -7,6 +7,7 @@ export interface DeviceDB {
   title: string;
   lastActiveDate: Date;
   expirationDate: Date;
+  refreshToken: string;
   // createdAt?: Date;
 }
 export type DeviceDBWithId = WithId<DeviceDB>;

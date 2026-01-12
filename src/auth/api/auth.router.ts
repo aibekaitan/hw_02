@@ -25,6 +25,7 @@ import cookieParser from 'cookie-parser';
 import { randomUUID } from 'crypto';
 import { securityDevicesRepository } from '../../security-devices/infrastructure/security-devices.repository';
 import { requestLoggerAndLimiter } from '../middlewares/rate-limit.middleware';
+import { refreshTokenGuard } from './guards/refresh.token.guard';
 
 export const authRouter = Router();
 
@@ -68,16 +69,10 @@ authRouter.post(
 authRouter.post(
   '/refresh-token',
   requestLoggerAndLimiter,
+  refreshTokenGuard,
   async (req: Request, res: Response) => {
     const refreshToken = req.cookies.refreshToken;
 
-    const user = await jwtService.verifyRefreshToken(refreshToken);
-    if (!user) {
-      res.status(401).send({
-        errorsMessages: [{ field: 'email', message: 'User not found' }],
-      });
-      return;
-    }
     if (!refreshToken) {
       return res.sendStatus(HttpStatuses.Unauthorized);
     }
