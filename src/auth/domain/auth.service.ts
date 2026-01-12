@@ -1,6 +1,5 @@
-import { WithId } from 'mongodb';
-import { Result } from '../../common/result/result.type';
 import { ResultStatus } from '../../common/result/resultCode';
+import { Result } from '../../common/result/result.type';
 import { jwtService } from '../adapters/jwt.service';
 import { usersRepository } from '../../users/infrastructure/user.repository';
 import { bcryptService } from '../adapters/bcrypt.service';
@@ -8,14 +7,19 @@ import { IUserDB } from '../../users/types/user.db.interface';
 import { nodemailerService } from '../adapters/nodemailer.service';
 import { emailExamples } from '../adapters/emailExamples';
 import { User } from '../../users/domain/user.entity';
+import { randomUUID } from 'crypto';
+import { securityDevicesRepository } from '../../security-devices/infrastructure/security-devices.repository';
+import { WithId } from 'mongodb';
 
 export const authService = {
   async loginUser(
     loginOrEmail: string,
     password: string,
+    ip: string,
+    title: string,
   ): Promise<Result<{ accessToken: string; refreshToken: string } | null>> {
     try {
-      console.log('loginUser called with:', { loginOrEmail, password });
+      console.log('loginUser called with:', { loginOrEmail });
 
       const result = await this.checkUserCredentials(loginOrEmail, password);
       console.log('checkUserCredentials result:', result.status);
@@ -30,17 +34,27 @@ export const authService = {
         };
       }
 
-      console.log('Creating token for user:', result.data!._id.toString());
-      const accessToken = await jwtService.createToken(
-        result.data!._id.toString(),
-      );
+      const user = result.data!;
+      const userId = user._id.toString();
+
+      const deviceId = randomUUID();
+
+      await securityDevicesRepository.upsertDevice({
+        userId,
+        deviceId,
+        ip,
+        title,
+        lastActiveDate: new Date(),
+        expirationDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      });
+
+      console.log('Creating tokens for user:', userId, 'device:', deviceId);
+      const accessToken = await jwtService.createToken(userId, deviceId);
       const refreshToken = await jwtService.createRefreshToken(
-        result.data!._id.toString(),
+        userId,
+        deviceId,
       );
-      await usersRepository.updateRefreshToken(
-        result.data!._id.toString(),
-        refreshToken,
-      );
+
       return {
         status: ResultStatus.Success,
         data: { accessToken, refreshToken },
@@ -48,7 +62,7 @@ export const authService = {
       };
     } catch (error) {
       console.error('Error in loginUser:', error);
-      throw error; // Это вызовет 500 ошибку
+      throw error;
     }
   },
 
@@ -63,7 +77,6 @@ export const authService = {
       console.log('User found:', user ? 'yes' : 'no');
 
       if (!user) {
-        console.log('User not found');
         return {
           status: ResultStatus.NotFound,
           data: null,
@@ -77,10 +90,8 @@ export const authService = {
         password,
         user.passwordHash,
       );
-      console.log('Password correct:', isPassCorrect);
 
       if (!isPassCorrect) {
-        console.log('Password incorrect');
         return {
           status: ResultStatus.BadRequest,
           data: null,
@@ -89,7 +100,6 @@ export const authService = {
         };
       }
 
-      console.log('Credentials valid');
       return {
         status: ResultStatus.Success,
         data: user,
@@ -100,22 +110,23 @@ export const authService = {
       throw error;
     }
   },
+
   async registerUser(
     login: string,
     pass: string,
     email: string,
   ): Promise<Result<User | null>> {
-    const user = await usersRepository.doesExistByLoginOrEmail(login, email);
-    if (user)
+    const exists = await usersRepository.doesExistByLoginOrEmail(login, email);
+    if (exists) {
       return {
         status: ResultStatus.BadRequest,
         errorMessage: 'Bad Request',
         data: null,
         extensions: [{ field: 'loginOrEmail', message: 'Already Registered' }],
       };
+    }
 
     const passwordHash = await bcryptService.generateHash(pass);
-
     const newUser = new User(login, email, passwordHash);
 
     await usersRepository.create(newUser);
@@ -136,7 +147,6 @@ export const authService = {
   },
 
   async confirmEmail(code: string): Promise<Result<any>> {
-    //some logic
     let user = await usersRepository.findUserByConfirmationCode(code);
     if (!user) {
       return {
@@ -171,6 +181,55 @@ export const authService = {
       status: ResultStatus.Success,
       data: null,
       extensions: [],
+    };
+  },
+
+  async refreshTokens(
+    refreshToken: string,
+    ip: string,
+    title: string,
+  ): Promise<Result<{ accessToken: string; refreshToken: string } | null>> {
+    const payload = await jwtService.verifyRefreshToken(refreshToken);
+    if (!payload || !payload.deviceId) {
+      return {
+        status: ResultStatus.Unauthorized,
+        errorMessage: 'Invalid refresh token',
+        data: null,
+      };
+    }
+
+    const device = await securityDevicesRepository.findByDeviceId(
+      payload.deviceId,
+    );
+    if (!device || device.userId !== payload.userId) {
+      return {
+        status: ResultStatus.Unauthorized,
+        errorMessage: 'Device session not found',
+        data: null,
+      };
+    }
+
+    await securityDevicesRepository.upsertDevice({
+      userId: payload.userId,
+      deviceId: payload.deviceId,
+      ip,
+      title,
+      lastActiveDate: new Date(),
+      expirationDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    });
+
+    const newAccessToken = await jwtService.createToken(
+      payload.userId,
+      payload.deviceId,
+    );
+    const newRefreshToken = await jwtService.createRefreshToken(
+      payload.userId,
+      payload.deviceId,
+    );
+
+    return {
+      status: ResultStatus.Success,
+      data: { accessToken: newAccessToken, refreshToken: newRefreshToken },
     };
   },
 };

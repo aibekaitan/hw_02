@@ -8,7 +8,6 @@ import { authService } from '../domain/auth.service';
 import { passwordValidation } from '../../users/api/middlewares/password.validation';
 import { inputValidation } from '../../common/validation/input.validation';
 import { loginOrEmailValidation } from '../../users/api/middlewares/login.or.email.valid';
-// import { HttpStatus } from '../../core/types/http-statuses';
 import { accessTokenGuard } from './guards/access.token.guard';
 import { IdType } from '../../common/types/id';
 import { HttpStatuses } from '../../common/types/httpStatuses';
@@ -18,56 +17,115 @@ import { resultCodeToHttpException } from '../../common/result/resultCodeToHttpE
 import { loginValidation } from '../../users/api/middlewares/login.validation';
 import { emailValidation } from '../../users/api/middlewares/email.validation';
 import { CreateUserDto } from '../../users/types/create-user.dto';
-import { routersPaths } from '../../common/path/paths';
 import { usersRepository } from '../../users/infrastructure/user.repository';
 import { nodemailerService } from '../adapters/nodemailer.service';
 import { emailExamples } from '../adapters/emailExamples';
-import { randomUUID } from 'crypto';
 import { jwtService } from '../adapters/jwt.service';
 import cookieParser from 'cookie-parser';
+import { randomUUID } from 'crypto';
+import { securityDevicesRepository } from '../../security-devices/infrastructure/security-devices.repository';
+import { requestLoggerAndLimiter } from '../middlewares/rate-limit.middleware';
 
 export const authRouter = Router();
 
 authRouter.post(
   '/login',
+  requestLoggerAndLimiter,
   passwordValidation,
   loginOrEmailValidation,
   inputValidation,
   async (req: RequestWithBody<LoginInputModel>, res: Response) => {
     const { loginOrEmail, password } = req.body;
-    const result = await authService.loginUser(loginOrEmail, password);
+
+    const ip = req.ip || 'unknown';
+    const title = req.headers['user-agent'] || 'Unknown device';
+
+    const result = await authService.loginUser(
+      loginOrEmail,
+      password,
+      ip,
+      title,
+    );
+
     if (result.status !== ResultStatus.Success) {
-      res
+      return res
         .status(resultCodeToHttpException(result.status))
-        .send(result.extensions);
-      return;
+        .json({ errorsMessages: result.extensions ?? [] });
     }
-    res.cookie('refreshToken', result.data!.refreshToken, {
+
+    const { accessToken, refreshToken } = result.data!;
+
+    res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: true,
+      sameSite: 'strict',
     });
-    res
-      .status(HttpStatuses.Success)
-      .send({ accessToken: result.data!.accessToken });
+
+    res.status(HttpStatuses.Success).json({ accessToken });
   },
 );
-authRouter.get(
-  '/me',
-  accessTokenGuard,
-  async (req: RequestWithUserId<IdType>, res: Response) => {
-    const userId = req.user?.id as string;
 
-    if (!userId) {
-      res.sendStatus(HttpStatuses.Unauthorized);
-      return;
+authRouter.post(
+  '/refresh-token',
+  requestLoggerAndLimiter,
+  async (req: Request, res: Response) => {
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) {
+      return res.sendStatus(HttpStatuses.Unauthorized);
     }
-    const me = await usersQwRepository.findById2(userId);
 
-    res.status(HttpStatuses.Success).send(me);
+    const ip = req.ip || 'unknown';
+    const title = req.headers['user-agent'] || 'Unknown device';
+
+    const result = await authService.refreshTokens(refreshToken, ip, title);
+
+    if (result.status !== ResultStatus.Success) {
+      return res
+        .status(resultCodeToHttpException(result.status))
+        .json({ errorsMessages: result.extensions ?? [] });
+    }
+
+    const { accessToken, refreshToken: newRefreshToken } = result.data!;
+
+    res.cookie('refreshToken', newRefreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+    });
+
+    res.status(HttpStatuses.Success).json({ accessToken });
   },
 );
+
+authRouter.post(
+  '/logout',
+  requestLoggerAndLimiter,
+  async (req: Request, res: Response) => {
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) {
+      return res.sendStatus(HttpStatuses.Unauthorized);
+    }
+
+    const payload = await jwtService.verifyRefreshToken(refreshToken);
+    if (!payload || !payload.deviceId) {
+      return res.sendStatus(HttpStatuses.Unauthorized);
+    }
+
+    await securityDevicesRepository.deleteByDeviceId(payload.deviceId);
+
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+    });
+
+    res.sendStatus(HttpStatuses.NoContent);
+  },
+);
+
 authRouter.post(
   '/registration',
+  requestLoggerAndLimiter,
   passwordValidation,
   loginValidation,
   emailValidation,
@@ -76,11 +134,11 @@ authRouter.post(
     const { login, email, password } = req.body;
 
     const result = await authService.registerUser(login, password, email);
+
     if (result.status !== ResultStatus.Success) {
-      res
+      return res
         .status(resultCodeToHttpException(result.status))
-        .send(result.extensions);
-      return;
+        .json({ errorsMessages: result.extensions ?? [] });
     }
 
     res.sendStatus(HttpStatuses.NoContent);
@@ -89,102 +147,70 @@ authRouter.post(
 
 authRouter.post(
   '/registration-confirmation',
+  requestLoggerAndLimiter,
   inputValidation,
   async (req: Request, res: Response) => {
     const { code } = req.body;
 
-    //some logic
     const result = await authService.confirmEmail(code);
-    // console.log(result.status);
+
     if (result.status !== ResultStatus.Success) {
-      res.status(resultCodeToHttpException(result.status)).json({
-        errorsMessages: result.extensions,
-      });
-      return;
+      return res
+        .status(resultCodeToHttpException(result.status))
+        .json({ errorsMessages: result.extensions ?? [] });
     }
+
     res.sendStatus(HttpStatuses.NoContent);
   },
 );
 
 authRouter.post(
   '/registration-email-resending',
+  requestLoggerAndLimiter,
   inputValidation,
   async (req: Request, res: Response) => {
     const { email } = req.body;
-    //some logic
+
     const user = await usersRepository.findByLoginOrEmail(email);
     if (!user) {
-      res.status(400).send({
+      return res.status(HttpStatuses.BadRequest).json({
         errorsMessages: [{ field: 'email', message: 'User not found' }],
       });
-      return;
     }
+
     if (user.emailConfirmation.isConfirmed) {
-      res.status(400).send({
+      return res.status(HttpStatuses.BadRequest).json({
         errorsMessages: [
           { field: 'email', message: 'Email already confirmed' },
         ],
       });
-      return;
     }
+
     user.emailConfirmation.confirmationCode = randomUUID();
     await usersRepository.updateConfirmationCode(
       user._id,
       user.emailConfirmation.confirmationCode,
     );
+
     await nodemailerService.sendEmail(
       user.email,
       user.emailConfirmation.confirmationCode,
       emailExamples.registrationEmail,
     );
+
     res.sendStatus(HttpStatuses.NoContent);
   },
 );
-authRouter.post('/refresh-token', async (req: Request, res: Response) => {
-  const refreshToken = req.cookies.refreshToken;
-  const user = await jwtService.verifyToken(refreshToken);
-  if (!user) {
-    res.status(401).send({
-      errorsMessages: [{ field: 'email', message: 'User not found' }],
-    });
-    return;
-  }
-  const myUser = await usersRepository.findById(user.userId);
-  if (!myUser) {
-    res.status(401).send({});
-    return;
-  }
-  if (myUser?.refreshToken !== refreshToken) {
-    res.status(401).send({});
-    return;
-  }
-  const newAccessToken = await jwtService.createToken(user.userId);
-  const newRefreshToken = await jwtService.createRefreshToken(user.userId);
-  await usersRepository.updateRefreshToken(user.userId, newRefreshToken);
-  res.cookie('refreshToken', newRefreshToken, {
-    httpOnly: true,
-    secure: true,
-  });
-  res.status(HttpStatuses.Success).send({ accessToken: newAccessToken });
-});
-authRouter.post('/logout', async (req: Request, res: Response) => {
-  const refreshToken = req.cookies.refreshToken;
-  if (!refreshToken) {
-    return res.sendStatus(HttpStatuses.Unauthorized);
-  }
-  const payload = await jwtService.verifyToken(refreshToken);
-  if (!payload) {
-    return res.sendStatus(HttpStatuses.Unauthorized);
-  }
-  const myUser = await usersRepository.findById(payload.userId);
-  if (!myUser) {
-    res.status(401).send({});
-    return;
-  }
-  if (myUser?.refreshToken !== refreshToken) {
-    res.status(401).send({});
-    return;
-  }
-  await usersRepository.updateRefreshToken(payload.userId, '');
-  res.status(HttpStatuses.NoContent).send();
-});
+
+authRouter.get(
+  '/me',
+  accessTokenGuard,
+  async (req: RequestWithUserId<IdType>, res: Response) => {
+    const userId = req.user?.id as string;
+    if (!userId) {
+      return res.sendStatus(HttpStatuses.Unauthorized);
+    }
+    const me = await usersQwRepository.findById2(userId);
+    res.status(HttpStatuses.Success).send(me);
+  },
+);

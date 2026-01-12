@@ -1,13 +1,18 @@
 import { ResultStatus } from './resultCode';
 
-type ExtensionType = {
-  field: string | null;
+export type ExtensionType = {
   message: string;
+  field?: string;
 };
 
 export type Result<T = null> = {
   status: ResultStatus;
+  data?: T;
   errorMessage?: string;
-  extensions: ExtensionType[];
-  data: T;
+  extensions?: ExtensionType[];
 };
+export interface ServiceResult<T = void> {
+  status: ResultStatus;
+  data?: T;
+  extensions?: Array<{ message: string; field?: string }>;
+}

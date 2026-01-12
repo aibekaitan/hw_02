@@ -8,6 +8,7 @@ import { usersRouter } from './users/api/users.router';
 import { authRouter } from './auth/api/auth.router';
 import { commentsRouter } from './comments/api/comments.router';
 import cookieParser from 'cookie-parser';
+import { securityDevicesRouter } from './security-devices/api/security-devices';
 
 export const setupApp = (app: Express) => {
   app.use(express.json());
@@ -24,7 +25,7 @@ export const setupApp = (app: Express) => {
   app.use('/users', usersRouter);
   app.use('/auth', authRouter);
   app.use('/comments', commentsRouter);
-
+  app.use('/security/devices', securityDevicesRouter);
   // setupSwagger(app);
   return app;
 };

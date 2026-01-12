@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { jwtService } from '../../adapters/jwt.service';
 import { IdType } from '../../../common/types/id';
+import { securityDevicesRepository } from '../../../security-devices/infrastructure/security-devices.repository';
 
 export const accessTokenGuard = async (
   req: Request,
@@ -9,50 +10,42 @@ export const accessTokenGuard = async (
 ) => {
   console.log('--- accessTokenGuard START ---');
 
-  console.log('Authorization header:', req.headers.authorization);
-
   if (!req.headers.authorization) {
     console.log('❌ No Authorization header');
-    res.sendStatus(401);
-    return;
+    return res.sendStatus(401);
   }
 
   const parts = req.headers.authorization.split(' ');
-  console.log('Authorization parts:', parts);
-
-  if (parts.length !== 2) {
-    console.log('❌ Authorization header has wrong format');
-    res.sendStatus(401);
-    return;
+  if (parts.length !== 2 || parts[0] !== 'Bearer') {
+    console.log('❌ Wrong Authorization format');
+    return res.sendStatus(401);
   }
 
-  const [authType, token] = parts;
-
-  console.log('Auth type:', authType);
-  console.log('Token:', token);
-
-  if (authType !== 'Bearer') {
-    console.log('❌ Auth type is not Bearer');
-    res.sendStatus(401);
-    return;
-  }
+  const token = parts[1];
 
   const payload = await jwtService.verifyToken(token);
-  console.log('JWT payload:', payload);
-
   if (!payload) {
     console.log('❌ Token verification failed');
-    res.sendStatus(401);
-    return;
+    return res.sendStatus(401);
   }
 
-  const { userId } = payload;
-  console.log('UserId from token:', userId);
+  const { userId, deviceId } = payload;
 
-  req.user = { id: userId } as IdType;
+  if (!userId || !deviceId) {
+    console.log('❌ Token missing userId or deviceId');
+    return res.sendStatus(401);
+  }
 
-  console.log('✅ accessTokenGuard PASSED');
-  console.log('--- accessTokenGuard END ---');
+  req.user = { id: userId };
+  req.device = { id: deviceId };
 
+  const deviceExists = await securityDevicesRepository.findByDeviceId(deviceId);
+  if (!deviceExists || deviceExists.userId !== userId) {
+    console.log('❌ Device not found or belongs to another user');
+    return res.sendStatus(401);
+  }
+  // await securityDevicesRepository.updateLastActive(deviceId);
+
+  console.log(`✅ Passed for user: ${userId}, device: ${deviceId}`);
   next();
 };

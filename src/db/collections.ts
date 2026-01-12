@@ -8,12 +8,15 @@ import {
   CommentViewModel,
 } from '../comments/types/comments.dto';
 import { User } from '../users/domain/user.entity';
+import { DeviceDB } from '../security-devices/types/devices.dto';
+import { RequestLog } from '../common/types/request.log';
 
 export let blogsCollection: Collection<Blog>;
 export let postsCollection: Collection<Post>;
 export let usersCollection: Collection<User>;
 export let commentsCollection: Collection<CommentDB>;
-
+export let securityDevicesCollection: Collection<DeviceDB>;
+export let requestLogsCollection: Collection<RequestLog>;
 export function setBlogsCollection(collection: Collection<Blog>) {
   blogsCollection = collection;
 }
@@ -29,3 +32,12 @@ export function setUsersCollection(collection: Collection<User>) {
 export function setCommentsCollection(collection: Collection<CommentDB>) {
   commentsCollection = collection;
 }
+export function setSecurityDevicesCollection(collection: Collection<DeviceDB>) {
+  securityDevicesCollection = collection;
+}
+
+export const setRequestLogsCollection = (
+  collection: Collection<RequestLog>,
+) => {
+  requestLogsCollection = collection;
+};

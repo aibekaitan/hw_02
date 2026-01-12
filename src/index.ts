@@ -8,6 +8,8 @@ import {
   setBlogsCollection,
   setCommentsCollection,
   setPostsCollection,
+  setRequestLogsCollection,
+  setSecurityDevicesCollection,
   setUsersCollection,
 } from './db/collections';
 
@@ -21,6 +23,10 @@ const bootstrap = async () => {
   setPostsCollection(client.db('my_database').collection('posts'));
   setUsersCollection(client.db('my_database').collection('users'));
   setCommentsCollection(client.db('my_database').collection('comments'));
+  setRequestLogsCollection(client.db('my_database').collection('requestLogs'));
+  setSecurityDevicesCollection(
+    client.db('my_database').collection('security-devices'),
+  );
   app.listen(PORT, () => {
     console.log(`Example app listening on port ${PORT}`);
   });
