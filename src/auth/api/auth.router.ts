@@ -100,6 +100,7 @@ authRouter.post(
 authRouter.post(
   '/logout',
   requestLoggerAndLimiter,
+  refreshTokenGuard,
   async (req: Request, res: Response) => {
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) {
