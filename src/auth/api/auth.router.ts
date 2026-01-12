@@ -74,10 +74,7 @@ authRouter.post(
       return res.sendStatus(HttpStatuses.Unauthorized);
     }
 
-    const ip = req.ip || 'unknown';
-    const title = req.headers['user-agent'] || 'Unknown device';
-
-    const result = await authService.refreshTokens(refreshToken, ip, title);
+    const result = await authService.refreshTokens(refreshToken);
 
     if (result.status !== ResultStatus.Success) {
       return res

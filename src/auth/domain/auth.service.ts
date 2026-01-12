@@ -186,8 +186,6 @@ export const authService = {
 
   async refreshTokens(
     refreshToken: string,
-    ip: string,
-    title: string,
   ): Promise<Result<{ accessToken: string; refreshToken: string } | null>> {
     const payload = await jwtService.verifyRefreshToken(refreshToken);
     if (!payload || !payload.deviceId) {
@@ -209,11 +207,12 @@ export const authService = {
       };
     }
 
+    // ✅ Только обновляем lastActiveDate и expirationDate
     await securityDevicesRepository.upsertDevice({
       userId: payload.userId,
       deviceId: payload.deviceId,
-      ip,
-      title,
+      ip: device.ip, // оставляем оригинальный ip
+      title: device.title, // НЕ меняем title
       lastActiveDate: new Date(),
       expirationDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
     });
