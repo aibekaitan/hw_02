@@ -10,6 +10,7 @@ export const accessTokenGuard = async (
 ) => {
   console.log('--- accessTokenGuard START ---');
 
+  console.log('Authorization header received:', req.headers.authorization);
   if (!req.headers.authorization) {
     console.log('❌ No Authorization header');
     return res.sendStatus(401);
@@ -44,7 +45,6 @@ export const accessTokenGuard = async (
     console.log('❌ Device not found or belongs to another user');
     return res.sendStatus(401);
   }
-  // await securityDevicesRepository.updateLastActive(deviceId);
 
   console.log(`✅ Passed for user: ${userId}, device: ${deviceId}`);
   next();
