@@ -185,28 +185,29 @@ export const authService = {
     };
   },
   async changePassword(
-    code: string,
+    recoveryCode: string,
     newPassword: string,
   ): Promise<Result<any>> {
-    let user = await usersRepository.findUserByPasswordRecoveryCode(code);
+    let user =
+      await usersRepository.findUserByPasswordRecoveryCode(recoveryCode);
     if (!user) {
       return {
         status: ResultStatus.BadRequest,
         errorMessage: 'Bad Request',
         data: null,
-        extensions: [{ field: 'code', message: 'Incorrect code' }],
+        extensions: [{ field: 'recoveryCode', message: 'Incorrect code' }],
       };
     }
     const isUuid = new RegExp(
       /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
-    ).test(code);
+    ).test(recoveryCode);
 
     if (!isUuid) {
       return {
         status: ResultStatus.BadRequest,
         errorMessage: 'Bad Request',
         data: null,
-        extensions: [{ field: 'code', message: 'Incorrect code' }],
+        extensions: [{ field: 'recoveryCode', message: 'Incorrect code' }],
       };
     }
     const passwordHash = await bcryptService.generateHash(newPassword);
