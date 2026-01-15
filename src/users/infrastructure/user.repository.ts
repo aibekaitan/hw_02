@@ -55,6 +55,15 @@ export const usersRepository = {
       { $set: { passwordHash: newPassword } },
     );
   },
+  async updatePasswordRecoveryCode(
+    _id: ObjectId,
+    newCode: string,
+  ): Promise<UpdateResult<User>> {
+    return usersCollection.updateOne(
+      { _id },
+      { $set: { passwordRecoveryCode: newCode } },
+    );
+  },
   async updateConfirmationCode(
     _id: ObjectId,
     newCode: string,

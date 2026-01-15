@@ -162,10 +162,10 @@ authRouter.post(
     }
 
     user.passwordRecoveryCode = randomUUID();
-    // await usersRepository.updateConfirmationCode(
-    //   user._id,
-    //   user.emailConfirmation.confirmationCode,
-    // );
+    await usersRepository.updatePasswordRecoveryCode(
+      user._id,
+      user.passwordRecoveryCode,
+    );
 
     await nodemailerService.sendEmail(
       user.email,
