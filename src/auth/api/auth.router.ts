@@ -27,6 +27,7 @@ import { securityDevicesRepository } from '../../security-devices/infrastructure
 import { requestLoggerAndLimiter } from '../middlewares/rate-limit.middleware';
 import { refreshTokenGuard } from './guards/refresh.token.guard';
 import { existingEmailValidation } from '../../users/api/middlewares/existing.email.validation';
+import { newPasswordValidation } from '../../users/api/middlewares/new.password.validation';
 
 export const authRouter = Router();
 
@@ -198,7 +199,7 @@ authRouter.post(
 authRouter.post(
   '/new-password',
   requestLoggerAndLimiter,
-  passwordValidation,
+  newPasswordValidation,
   inputValidation,
   async (req: Request, res: Response) => {
     const { recoveryCode, newPassword } = req.body;
