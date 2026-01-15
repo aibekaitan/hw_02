@@ -14,6 +14,7 @@ export const usersService = {
       passwordHash,
       createdAt: new Date(),
       refreshToken: '',
+      passwordRecoveryCode: '',
       emailConfirmation: {
         //default value can be nullable
         confirmationCode: '',
