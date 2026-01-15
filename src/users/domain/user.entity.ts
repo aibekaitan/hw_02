@@ -6,6 +6,7 @@ export class User {
   passwordHash: string;
   createdAt: Date;
   refreshToken: string;
+  passwordRecoveryCode: string;
   emailConfirmation: {
     confirmationCode: string;
     expirationDate: Date;
@@ -18,6 +19,7 @@ export class User {
     this.passwordHash = hash;
     this.refreshToken = '';
     this.createdAt = new Date();
+    this.passwordRecoveryCode = randomUUID();
     this.emailConfirmation = {
       expirationDate: new Date(),
       confirmationCode: randomUUID(),

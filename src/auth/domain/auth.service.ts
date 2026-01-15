@@ -184,6 +184,40 @@ export const authService = {
       extensions: [],
     };
   },
+  async changePassword(
+    code: string,
+    newPassword: string,
+  ): Promise<Result<any>> {
+    let user = await usersRepository.findUserByPasswordRecoveryCode(code);
+    if (!user) {
+      return {
+        status: ResultStatus.BadRequest,
+        errorMessage: 'Bad Request',
+        data: null,
+        extensions: [{ field: 'code', message: 'Incorrect code' }],
+      };
+    }
+    const isUuid = new RegExp(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
+    ).test(code);
+
+    if (!isUuid) {
+      return {
+        status: ResultStatus.BadRequest,
+        errorMessage: 'Bad Request',
+        data: null,
+        extensions: [{ field: 'code', message: 'Incorrect code' }],
+      };
+    }
+    const passwordHash = await bcryptService.generateHash(newPassword);
+
+    await usersRepository.updatePassword(user._id, passwordHash);
+    return {
+      status: ResultStatus.Success,
+      data: null,
+      extensions: [],
+    };
+  },
 
   async refreshTokens(
     refreshToken: string,

@@ -28,6 +28,13 @@ export const usersRepository = {
       'emailConfirmation.confirmationCode': emailConfirmationCode,
     });
   },
+  async findUserByPasswordRecoveryCode(
+    passwordRecoveryCode: string,
+  ): Promise<WithId<User> | null> {
+    return usersCollection.findOne({
+      passwordRecoveryCode: passwordRecoveryCode,
+    });
+  },
   async findByLoginOrEmail(loginOrEmail: string): Promise<WithId<User> | null> {
     return usersCollection.findOne({
       $or: [{ email: loginOrEmail }, { login: loginOrEmail }],
@@ -37,6 +44,15 @@ export const usersRepository = {
     return usersCollection.updateOne(
       { _id },
       { $set: { 'emailConfirmation.isConfirmed': true } },
+    );
+  },
+  async updatePassword(
+    _id: ObjectId,
+    newPassword: string,
+  ): Promise<UpdateResult<User> | null> {
+    return usersCollection.updateOne(
+      { _id },
+      { $set: { passwordHash: newPassword } },
     );
   },
   async updateConfirmationCode(

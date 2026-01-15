@@ -26,6 +26,7 @@ import { randomUUID } from 'crypto';
 import { securityDevicesRepository } from '../../security-devices/infrastructure/security-devices.repository';
 import { requestLoggerAndLimiter } from '../middlewares/rate-limit.middleware';
 import { refreshTokenGuard } from './guards/refresh.token.guard';
+import { existingEmailValidation } from '../../users/api/middlewares/existing.email.validation';
 
 export const authRouter = Router();
 
@@ -147,6 +148,35 @@ authRouter.post(
 );
 
 authRouter.post(
+  '/password-recovery',
+  requestLoggerAndLimiter,
+  existingEmailValidation,
+  inputValidation,
+  async (req: RequestWithBody<CreateUserDto>, res: Response) => {
+    const { email } = req.body;
+
+    const user = await usersRepository.findByLoginOrEmail(email);
+    if (!user) {
+      return res.sendStatus(HttpStatuses.NoContent);
+    }
+
+    user.passwordRecoveryCode = randomUUID();
+    // await usersRepository.updateConfirmationCode(
+    //   user._id,
+    //   user.emailConfirmation.confirmationCode,
+    // );
+
+    await nodemailerService.sendEmail(
+      user.email,
+      user.passwordRecoveryCode,
+      emailExamples.passwordRecoveryEmail,
+    );
+
+    res.sendStatus(HttpStatuses.NoContent);
+  },
+);
+
+authRouter.post(
   '/registration-confirmation',
   requestLoggerAndLimiter,
   inputValidation,
@@ -154,6 +184,26 @@ authRouter.post(
     const { code } = req.body;
 
     const result = await authService.confirmEmail(code);
+
+    if (result.status !== ResultStatus.Success) {
+      return res
+        .status(resultCodeToHttpException(result.status))
+        .json({ errorsMessages: result.extensions ?? [] });
+    }
+
+    res.sendStatus(HttpStatuses.NoContent);
+  },
+);
+
+authRouter.post(
+  '/new-password',
+  requestLoggerAndLimiter,
+  passwordValidation,
+  inputValidation,
+  async (req: Request, res: Response) => {
+    const { recoveryCode, newPassword } = req.body;
+
+    const result = await authService.changePassword(recoveryCode, newPassword);
 
     if (result.status !== ResultStatus.Success) {
       return res
