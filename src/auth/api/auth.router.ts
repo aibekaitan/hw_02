@@ -1,17 +1,10 @@
-import { Response, Request, Router } from 'express';
-import {
-  RequestWithBody,
-  RequestWithUserId,
-} from '../../common/types/requests';
-import { LoginInputModel } from '../types/login.dto';
+import { Router } from 'express';
 import { passwordValidation } from '../../users/api/middlewares/password.validation';
 import { inputValidation } from '../../common/validation/input.validation';
 import { loginOrEmailValidation } from '../../users/api/middlewares/login.or.email.valid';
 import { accessTokenGuard } from './guards/access.token.guard';
-import { IdType } from '../../common/types/id';
 import { loginValidation } from '../../users/api/middlewares/login.validation';
 import { emailValidation } from '../../users/api/middlewares/email.validation';
-import { CreateUserDto } from '../../users/types/create-user.dto';
 import { requestLoggerAndLimiter } from '../middlewares/rate-limit.middleware';
 import { refreshTokenGuard } from './guards/refresh.token.guard';
 import { existingEmailValidation } from '../../users/api/middlewares/existing.email.validation';
@@ -35,7 +28,6 @@ authRouter.post(
   loginOrEmailValidation,
   inputValidation,
   loginUserMiddleware,
-  async (req: RequestWithBody<LoginInputModel>, res: Response) => {},
 );
 
 authRouter.post(
@@ -43,7 +35,6 @@ authRouter.post(
   requestLoggerAndLimiter,
   refreshTokenGuard,
   refreshTokenMiddleware,
-  async (req: Request, res: Response) => {},
 );
 
 authRouter.post(
@@ -51,7 +42,6 @@ authRouter.post(
   requestLoggerAndLimiter,
   refreshTokenGuard,
   logoutMiddleware,
-  async (req: Request, res: Response) => {},
 );
 
 authRouter.post(
@@ -62,7 +52,6 @@ authRouter.post(
   emailValidation,
   inputValidation,
   registrationMiddleware,
-  async (req: RequestWithBody<CreateUserDto>, res: Response) => {},
 );
 
 authRouter.post(
@@ -71,7 +60,6 @@ authRouter.post(
   existingEmailValidation,
   inputValidation,
   passwordRecoveryMiddleware,
-  async (req: RequestWithBody<CreateUserDto>, res: Response) => {},
 );
 
 authRouter.post(
@@ -79,7 +67,6 @@ authRouter.post(
   requestLoggerAndLimiter,
   inputValidation,
   registrationConfimationMiddleware,
-  async (req: Request, res: Response) => {},
 );
 
 authRouter.post(
@@ -88,7 +75,6 @@ authRouter.post(
   newPasswordValidation,
   inputValidation,
   newPasswordMiddleware,
-  async (req: Request, res: Response) => {},
 );
 
 authRouter.post(
@@ -96,12 +82,6 @@ authRouter.post(
   requestLoggerAndLimiter,
   inputValidation,
   emailResendingMiddleware,
-  async (req: Request, res: Response) => {},
 );
 
-authRouter.get(
-  '/me',
-  accessTokenGuard,
-  meMiddleware,
-  async (req: RequestWithUserId<IdType>, res: Response) => {},
-);
+authRouter.get('/me', accessTokenGuard, meMiddleware);
