@@ -33,7 +33,8 @@ export const blogsRepository = {
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
       .select('-_id -__v')
-      .lean();
+      .lean()
+      .exec();
 
     const mappedBlogs = mapToBlogsOutput(items);
     return {
@@ -70,7 +71,8 @@ export const blogsRepository = {
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
       .select('-_id -__v')
-      .lean();
+      .lean()
+      .exec();
     const mappedBlogs = mapToPostsOutput(items);
     return {
       pagesCount: Math.ceil(totalCount / pageSize),
