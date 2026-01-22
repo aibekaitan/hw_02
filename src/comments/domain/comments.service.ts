@@ -5,6 +5,7 @@
 import { commentsRepository } from '../infrastructure/comments.repository';
 import { CommentInputModel } from '../types/comments.dto';
 import { UpdateResult, WithId } from 'mongodb';
+import { LikeModel, LikeStatus } from '../../models/like.model';
 
 export const commentsService = {
   async delete(id: string): Promise<boolean> {
@@ -21,5 +22,29 @@ export const commentsService = {
     if (!comment) return false;
 
     return comment;
+  },
+  async setLikeStatus(
+    commentId: string,
+    userId: string,
+    likeStatus: LikeStatus,
+  ) {
+    if (likeStatus === LikeStatus.None) {
+      await LikeModel.deleteOne({
+        parentId: commentId,
+        parentType: 'Comment',
+        authorId: userId,
+      });
+    } else {
+      await LikeModel.updateOne(
+        { parentId: commentId, parentType: 'Comment', authorId: userId },
+        {
+          $set: {
+            status: likeStatus,
+            createdAt: new Date(),
+          },
+        },
+        { upsert: true },
+      );
+    }
   },
 };

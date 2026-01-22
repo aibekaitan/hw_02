@@ -53,7 +53,12 @@ commentsRouter.put(
   bodyValidation,
   inputValidation,
   async (req: Request, res: Response) => {
-    await commentsRepository.update(req.params.id, req.body);
+    const userId = req.user!.id;
+    await commentsService.setLikeStatus(
+      req.params.id,
+      userId,
+      req.body.likeStatus,
+    );
     res.sendStatus(HttpStatus.NoContent);
   },
 );

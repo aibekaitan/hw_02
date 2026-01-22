@@ -47,7 +47,7 @@ export const postsRepository = {
     // return postsCollection.find({}).toArray();
   },
   async findById(id: string): Promise<Post | null> {
-    return PostModel.findOne({ id }).select('-_id -__v').lean().exec();
+    return await PostModel.findOne({ id }).select('-_id -__v').lean().exec();
   },
   async create(dto: PostInputModel, blogName: string): Promise<Post> {
     const createdAt = new Date();
