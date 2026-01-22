@@ -7,16 +7,17 @@ export const securityDevicesRepository = {
   async findAllByUserId(userId: string): Promise<DeviceDBWithId[]> {
     return DeviceModel.find({ userId })
       .sort({ lastActiveDate: -1 })
-      .select('-__v');
+      .select('-__v')
+      .lean();
   },
   async findByDeviceId(deviceId: string): Promise<DeviceDBWithId | null> {
-    return DeviceModel.findOne({ deviceId }).select('-__v');
+    return DeviceModel.findOne({ deviceId }).select('-__v').lean();
   },
   async findByUserIdAndDeviceId(
     userId: string,
     deviceId: string,
   ): Promise<DeviceDBWithId | null> {
-    return DeviceModel.findOne({ userId, deviceId }).select('-_id -__v');
+    return DeviceModel.findOne({ userId, deviceId }).select('-_id -__v').lean();
   },
   async upsertDevice(
     device: Omit<DeviceDB, '_id'>,

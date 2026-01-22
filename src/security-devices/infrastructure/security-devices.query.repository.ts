@@ -15,12 +15,13 @@ export const securityDevicesQueryRepository = {
   async findAllByUserId(userId: string): Promise<DeviceViewModel[]> {
     const devices = await DeviceModel.find({ userId })
       .sort({ lastActiveDate: -1 })
-      .select('-_id -__v');
+      .select('-_id -__v')
+      .lean();
 
     return devices.map(mapToViewModel);
   },
   async findByDeviceId(deviceId: string): Promise<DeviceViewModel | null> {
-    const device = await DeviceModel.findOne({ deviceId });
+    const device = await DeviceModel.findOne({ deviceId }).lean();
     if (!device) return null;
     return mapToViewModel(device);
   },

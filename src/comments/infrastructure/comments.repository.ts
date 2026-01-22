@@ -14,7 +14,7 @@ export const commentsRepository = {
     return isDel.deletedCount === 1;
   },
   async findById(id: string): Promise<CommentDB | null> {
-    return CommentModel.findOne({ id }).select('-_id -__v');
+    return CommentModel.findOne({ id }).select('-_id -__v').lean();
   },
   async update(
     id: string,
