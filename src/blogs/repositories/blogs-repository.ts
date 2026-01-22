@@ -1,11 +1,13 @@
 import { Blog } from '../types/blog';
-import { blogsCollection, postsCollection } from '../../db/collections';
+// import { blogsCollection, postsCollection } from '../../db/collections';
 import { DeleteResult, InsertOneResult, UpdateResult, WithId } from 'mongodb';
 import { BlogInputModel } from '../dto/blog.input';
 import { BlogPaginator } from '../types/paginator';
 import { mapToBlogsOutput } from '../mappers/map-blog-to-output';
 import { PostPaginator } from '../../posts/types/paginator';
 import { mapToPostsOutput } from '../../posts/mappers/map-post-to-output';
+import { BlogModel } from '../../models/blog.model';
+import { PostModel } from '../../models/post.model';
 
 export const blogsRepository = {
   async findAllBlogs(params: {
@@ -24,14 +26,14 @@ export const blogsRepository = {
       ? { name: { $regex: params.searchNameTerm, $options: 'i' } } // регистронезависимый поиск
       : {};
 
-    const totalCount = await blogsCollection.countDocuments(filter);
+    const totalCount = await BlogModel.countDocuments(filter);
 
-    const items = await blogsCollection
-      .find(filter)
+    const items = await BlogModel.find(filter)
       .sort({ [sortBy]: sortDirection })
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
-      .toArray();
+      .select('-_id -__v');
+
     const mappedBlogs = mapToBlogsOutput(items);
     return {
       pagesCount: Math.ceil(totalCount / pageSize),
@@ -42,7 +44,7 @@ export const blogsRepository = {
     };
   },
   async findById(id: string): Promise<WithId<Blog> | null> {
-    return blogsCollection.findOne({ id: id });
+    return BlogModel.findOne({ id });
   },
   async findPostsByBlogId(
     id: string,
@@ -60,14 +62,13 @@ export const blogsRepository = {
 
     const filter = { blogId: id };
 
-    const totalCount = await postsCollection.countDocuments({ blogId: id });
+    const totalCount = await PostModel.countDocuments(filter);
 
-    const items = await postsCollection
-      .find(filter)
+    const items = await PostModel.find(filter)
       .sort({ [sortBy]: sortDirection })
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
-      .toArray();
+      .select('-_id -__v');
     const mappedBlogs = mapToPostsOutput(items);
     return {
       pagesCount: Math.ceil(totalCount / pageSize),
@@ -77,11 +78,13 @@ export const blogsRepository = {
       items: mappedBlogs,
     };
   },
-  async create(blog: Blog): Promise<InsertOneResult<Blog>> {
-    return blogsCollection.insertOne(blog);
+  async create(blog: Blog): Promise<Blog> {
+    // return blogsCollection.insertOne(blog);
+    const created = await BlogModel.create(blog);
+    return created.toObject({ versionKey: false });
   },
   async update(id: string, dto: BlogInputModel): Promise<UpdateResult<Blog>> {
-    return blogsCollection.updateOne(
+    return BlogModel.updateOne(
       { id },
       {
         $set: {
@@ -93,6 +96,6 @@ export const blogsRepository = {
     );
   },
   async delete(id: string): Promise<DeleteResult> {
-    return blogsCollection.deleteOne({ id: id });
+    return BlogModel.deleteOne({ id });
   },
 };

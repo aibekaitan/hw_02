@@ -44,3 +44,16 @@ commentsRouter.put(
     res.sendStatus(HttpStatus.NoContent);
   },
 );
+
+commentsRouter.put(
+  '/:id/like-status',
+  accessTokenGuard,
+  commentExistMiddleware,
+  commentOwnerMiddleware,
+  bodyValidation,
+  inputValidation,
+  async (req: Request, res: Response) => {
+    await commentsRepository.update(req.params.id, req.body);
+    res.sendStatus(HttpStatus.NoContent);
+  },
+);

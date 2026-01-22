@@ -3,8 +3,9 @@ import { ObjectId, WithId } from 'mongodb';
 import { IUserDB } from '../types/user.db.interface';
 import { IPagination } from '../../common/types/pagination';
 import { SortQueryFilterType } from '../../common/types/sortQueryFilter.type';
+import { UserModel } from '../../models/user.model';
 // import { db } from "../../db";
-import { usersCollection } from '../../db/collections';
+// import { usersCollection } from '../../db/collections';
 
 export const usersQwRepository = {
   async findAllUsers(
@@ -37,14 +38,13 @@ export const usersQwRepository = {
 
     if (conds.length > 0) filter.$or = conds;
 
-    const totalCount = await usersCollection.countDocuments(filter);
+    const totalCount = await UserModel.countDocuments(filter);
 
-    const users = await usersCollection
-      .find(filter)
+    const users = await UserModel.find(filter)
       .sort({ [sortBy]: sortDirection })
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
-      .toArray();
+      .select('-_id -__v');
 
     return {
       pagesCount: Math.ceil(totalCount / pageSize),
@@ -55,11 +55,11 @@ export const usersQwRepository = {
     };
   },
   async findById(id: string): Promise<IUserView | null> {
-    const user = await usersCollection.findOne({ _id: new ObjectId(id) });
+    const user = await UserModel.findOne({ _id: new ObjectId(id) });
     return user ? this._getInView(user) : null;
   },
   async findById2(id: string): Promise<IUserView2 | null> {
-    const user = await usersCollection.findOne({ _id: new ObjectId(id) });
+    const user = await UserModel.findOne({ _id: new ObjectId(id) });
     return user ? this._getInView2(user) : null;
   },
   _getInView(user: WithId<IUserDB>): IUserView {

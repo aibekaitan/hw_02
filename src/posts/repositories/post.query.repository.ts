@@ -2,12 +2,13 @@ import { ObjectId, WithId } from 'mongodb';
 import { IPagination } from '../../common/types/pagination';
 import { SortQueryFilterType } from '../../common/types/sortQueryFilter.type';
 // import { db } from "../../db";
-import {
-  commentsCollection,
-  postsCollection,
-  usersCollection,
-} from '../../db/collections';
+// import {
+//   commentsCollection,
+//   postsCollection,
+//   usersCollection,
+// } from '../../db/collections';
 import { CommentDB, CommentViewModel } from '../../comments/types/comments.dto';
+import { CommentModel } from '../../models/comment.model';
 
 export const postsQwRepository = {
   async findAllCommentsByPostId(
@@ -16,14 +17,13 @@ export const postsQwRepository = {
   ): Promise<IPagination<CommentViewModel[]>> {
     const { sortBy, sortDirection, pageSize, pageNumber } = sortQueryDto;
     const filter: any = { postId };
-    const totalCount = await commentsCollection.countDocuments(filter);
+    const totalCount = await CommentModel.countDocuments(filter);
 
-    const comments = await commentsCollection
-      .find(filter)
+    const comments = await CommentModel.find(filter)
       .sort({ [sortBy]: sortDirection })
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
-      .toArray();
+      .select('-_id -__v');
 
     return {
       pagesCount: Math.ceil(totalCount / pageSize),

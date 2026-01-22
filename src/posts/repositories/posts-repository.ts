@@ -1,5 +1,5 @@
 import { Post } from '../types/post';
-import { commentsCollection, postsCollection } from '../../db/collections';
+// import { commentsCollection, postsCollection } from '../../db/collections';
 import { DeleteResult, ObjectId, UpdateResult, WithId } from 'mongodb';
 import { PostInputModel } from '../dto/post.input';
 import { PostPaginator } from '../types/paginator';
@@ -9,6 +9,8 @@ import {
   CommentInputModel,
 } from '../../comments/types/comments.dto';
 import { usersRepository } from '../../users/infrastructure/user.repository';
+import { PostModel } from '../../models/post.model';
+import { CommentModel } from '../../models/comment.model';
 
 export const postsRepository = {
   async findAll(params: {
@@ -26,14 +28,13 @@ export const postsRepository = {
     //   ? { name: { $regex: params.searchNameTerm, $options: 'i' } } // регистронезависимый поиск
     //   : {};
 
-    const totalCount = await postsCollection.countDocuments();
+    const totalCount = await PostModel.countDocuments();
 
-    const items = await postsCollection
-      .find({})
+    const items = await PostModel.find({})
       .sort({ [sortBy]: sortDirection })
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
-      .toArray();
+      .select('-_id -__v');
     const mappedBlogs = mapToPostsOutput(items);
     return {
       pagesCount: Math.ceil(totalCount / pageSize),
@@ -44,8 +45,8 @@ export const postsRepository = {
     };
     // return postsCollection.find({}).toArray();
   },
-  async findById(id: string): Promise<WithId<Post> | null> {
-    return postsCollection.findOne({ id });
+  async findById(id: string): Promise<Post | null> {
+    return PostModel.findOne({ id }).select('-_id -__v');
   },
   async create(dto: PostInputModel, blogName: string): Promise<Post> {
     const createdAt = new Date();
@@ -58,7 +59,7 @@ export const postsRepository = {
       blogName,
       createdAt: createdAt.toISOString(),
     };
-    await postsCollection.insertOne(post);
+    await PostModel.create(post);
     return post;
   },
   async createComment(
@@ -79,11 +80,11 @@ export const postsRepository = {
       },
       createdAt: createdAt.toISOString(),
     };
-    await commentsCollection.insertOne(comment);
+    await CommentModel.create(comment);
     return comment;
   },
   async update(id: string, dto: PostInputModel): Promise<UpdateResult<Post>> {
-    return postsCollection.updateOne(
+    return PostModel.updateOne(
       { id },
       {
         $set: {
@@ -96,6 +97,6 @@ export const postsRepository = {
     );
   },
   async delete(id: string): Promise<DeleteResult> {
-    return postsCollection.deleteOne({ id });
+    return PostModel.deleteOne({ id });
   },
 };

@@ -1,27 +1,27 @@
 import { ObjectId, DeleteResult, UpdateResult, WithId } from 'mongodb';
-import { securityDevicesCollection } from '../../db/collections';
+// import { securityDevicesCollection } from '../../db/collections';
 import { DeviceDB, DeviceDBWithId } from '../types/devices.dto';
+import { DeviceModel } from '../../models/security.devices.model';
 
 export const securityDevicesRepository = {
   async findAllByUserId(userId: string): Promise<DeviceDBWithId[]> {
-    return securityDevicesCollection
-      .find({ userId })
+    return DeviceModel.find({ userId })
       .sort({ lastActiveDate: -1 })
-      .toArray();
+      .select('-_id -__v');
   },
   async findByDeviceId(deviceId: string): Promise<DeviceDBWithId | null> {
-    return securityDevicesCollection.findOne({ deviceId });
+    return DeviceModel.findOne({ deviceId }).select('-_id -__v');
   },
   async findByUserIdAndDeviceId(
     userId: string,
     deviceId: string,
   ): Promise<DeviceDBWithId | null> {
-    return securityDevicesCollection.findOne({ userId, deviceId });
+    return DeviceModel.findOne({ userId, deviceId }).select('-_id -__v');
   },
   async upsertDevice(
     device: Omit<DeviceDB, '_id'>,
   ): Promise<DeviceDBWithId | null> {
-    const result = await securityDevicesCollection.findOneAndUpdate(
+    const result = await DeviceModel.findOneAndUpdate(
       { userId: device.userId, deviceId: device.deviceId },
       {
         $set: {
@@ -35,14 +35,15 @@ export const securityDevicesRepository = {
       },
       {
         upsert: true,
-        returnDocument: 'after',
+        new: true,
+        projection: { _id: 0, __v: 0 },
       },
     );
 
     return result;
   },
   async deleteByDeviceId(deviceId: string): Promise<boolean> {
-    const result: DeleteResult = await securityDevicesCollection.deleteOne({
+    const result: DeleteResult = await DeviceModel.deleteOne({
       deviceId,
     });
     return result.deletedCount === 1;
@@ -51,20 +52,20 @@ export const securityDevicesRepository = {
     userId: string,
     currentDeviceId: string,
   ): Promise<number> {
-    const result: DeleteResult = await securityDevicesCollection.deleteMany({
+    const result: DeleteResult = await DeviceModel.deleteMany({
       userId,
       deviceId: { $ne: currentDeviceId },
     });
     return result.deletedCount;
   },
   async deleteAllByUserId(userId: string): Promise<number> {
-    const result: DeleteResult = await securityDevicesCollection.deleteMany({
+    const result: DeleteResult = await DeviceModel.deleteMany({
       userId,
     });
     return result.deletedCount;
   },
   async deleteExpired(): Promise<number> {
-    const result: DeleteResult = await securityDevicesCollection.deleteMany({
+    const result: DeleteResult = await DeviceModel.deleteMany({
       expirationDate: { $lt: new Date() },
     });
     return result.deletedCount;
@@ -73,7 +74,7 @@ export const securityDevicesRepository = {
     deviceId: string,
     newDate: Date = new Date(),
   ): Promise<boolean> {
-    const result: UpdateResult = await securityDevicesCollection.updateOne(
+    const result: UpdateResult = await DeviceModel.updateOne(
       { deviceId },
       { $set: { lastActiveDate: newDate } },
     );

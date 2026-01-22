@@ -6,7 +6,9 @@ import { BlogPaginator } from '../types/paginator';
 import { PostPaginator } from '../../posts/types/paginator';
 import { BlogPostInputModel } from '../dto/blogPost.input';
 import { Post } from '../../posts/types/post';
-import { blogsCollection, postsCollection } from '../../db/collections';
+import { BlogModel } from '../../models/blog.model';
+import { PostModel } from '../../models/post.model';
+// import { blogsCollection, postsCollection } from '../../db/collections';
 
 export const blogsService = {
   async findAllBlogs(params: {
@@ -51,7 +53,7 @@ export const blogsService = {
   ): Promise<Post | null> {
     const createdAt = new Date();
     const filter = { id: blogId };
-    const blog = await blogsCollection.findOne(filter);
+    const blog = await BlogModel.findOne(filter);
     if (!blog) {
       return null; // роутер вернёт 404
     }
@@ -64,7 +66,7 @@ export const blogsService = {
       blogName: blog.name,
       createdAt: createdAt.toISOString(),
     };
-    await postsCollection.insertOne(post);
+    await PostModel.insertOne(post);
     return post;
   },
   async update(id: string, dto: BlogInputModel): Promise<UpdateResult<Blog>> {

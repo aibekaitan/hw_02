@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { requestLogsCollection } from '../../db/collections';
+import { RequestLogModel } from '../../models/request.logs.model';
+// import { requestLogsCollection } from '../../db/collections';
 
 const REQUEST_LIMIT = 5;
 const TIME_WINDOW_MS = 10 * 1000;
@@ -12,7 +13,7 @@ export const requestLoggerAndLimiter = async (
   const ip = req.ip || 'unknown';
   const url = req.originalUrl || req.baseUrl + req.path;
   const now = new Date();
-  await requestLogsCollection.insertOne({
+  await RequestLogModel.create({
     ip,
     url,
     date: now,
@@ -21,7 +22,7 @@ export const requestLoggerAndLimiter = async (
   });
   const tenSecondsAgo = new Date(now.getTime() - TIME_WINDOW_MS);
 
-  const count = await requestLogsCollection.countDocuments({
+  const count = await RequestLogModel.countDocuments({
     ip,
     url,
     date: { $gte: tenSecondsAgo },
