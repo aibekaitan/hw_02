@@ -17,7 +17,7 @@ export const securityDevicesRepository = {
     userId: string,
     deviceId: string,
   ): Promise<DeviceDBWithId | null> {
-    return DeviceModel.findOne({ userId, deviceId }).select('-_id -__v').lean();
+    return DeviceModel.findOne({ userId, deviceId }).select('-__v').lean();
   },
   async upsertDevice(
     device: Omit<DeviceDB, '_id'>,

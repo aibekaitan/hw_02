@@ -16,6 +16,7 @@ export const getCommentsByPostIdController = async (
   const { pageNumber, pageSize, sortBy, sortDirection } = sortQueryFieldsUtil(
     req.query,
   );
+  const currentUserId = req.user?.id ?? undefined;
   const allComments = await postsQwRepository.findAllCommentsByPostId(
     req.params.id,
     {
@@ -26,6 +27,7 @@ export const getCommentsByPostIdController = async (
       sortBy,
       sortDirection,
     },
+    currentUserId,
   );
 
   res.status(200).send(allComments);

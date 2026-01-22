@@ -32,7 +32,7 @@ export const blogsRepository = {
       .sort({ [sortBy]: sortDirection })
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
-      .select('-_id -__v')
+      .select('-__v')
       .lean()
       .exec();
 
@@ -70,7 +70,7 @@ export const blogsRepository = {
       .sort({ [sortBy]: sortDirection })
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
-      .select('-_id -__v')
+      .select('-__v')
       .lean()
       .exec();
     const mappedBlogs = mapToPostsOutput(items);

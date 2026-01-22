@@ -16,14 +16,14 @@ export const commentsRepository = {
     return isDel.deletedCount === 1;
   },
   async findById(id: string): Promise<CommentDB | null> {
-    return CommentModel.findOne({ id }).select('-_id -__v').lean();
+    return await CommentModel.findOne({ id }).select('-__v').lean().exec();
   },
   async findById2(
     id: string,
     currentUserId?: string,
   ): Promise<CommentViewModel | null> {
     const comment = await CommentModel.findOne({ id })
-      .select('-_id -__v')
+      .select('-__v')
       .lean()
       .exec();
 

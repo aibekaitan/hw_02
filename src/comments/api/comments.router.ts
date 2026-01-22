@@ -9,16 +9,20 @@ import { commentExistMiddleware } from './middlewares/comment.exist.middleware';
 import { commentOwnerMiddleware } from './middlewares/comment.owner.middleware';
 import { objectIdValidation } from './middlewares/objectId.validation.middleware';
 import { postsQwRepository } from '../../posts/repositories/post.query.repository';
+import { optionalAccessTokenGuard } from '../../auth/api/guards/optional.access.token.guard';
 
 export const commentsRouter = Router();
 
-commentsRouter.get('/:id', async (req, res) => {
+commentsRouter.get('/:id', optionalAccessTokenGuard, async (req, res) => {
+  const currentUserId = req.user?.id;
   const comment = await commentsRepository.findById(req.params.id);
   if (!comment) {
     res.sendStatus(404);
     return;
   }
-  res.status(200).send(postsQwRepository._getInViewComment(comment));
+  res
+    .status(200)
+    .send(postsQwRepository._getInViewComment(comment, currentUserId));
 });
 
 commentsRouter.delete(

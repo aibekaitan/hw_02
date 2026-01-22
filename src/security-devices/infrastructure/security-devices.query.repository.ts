@@ -15,7 +15,7 @@ export const securityDevicesQueryRepository = {
   async findAllByUserId(userId: string): Promise<DeviceViewModel[]> {
     const devices = await DeviceModel.find({ userId })
       .sort({ lastActiveDate: -1 })
-      .select('-_id -__v')
+      .select('-__v')
       .lean();
 
     return devices.map(mapToViewModel);

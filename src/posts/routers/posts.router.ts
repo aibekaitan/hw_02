@@ -16,6 +16,7 @@ import { createCommentController } from '../controllers/create.comment.controlle
 import { getCommentsByPostIdController } from '../controllers/get.all.comments.by.postid.controller';
 import { updatePostController } from '../controllers/update.post.controller';
 import { deletePostController } from '../controllers/delete.post.controller';
+import { optionalAccessTokenGuard } from '../../auth/api/guards/optional.access.token.guard';
 
 export const postsRouter = Router();
 
@@ -39,6 +40,7 @@ postsRouter
   )
   .get(
     '/:id/comments',
+    optionalAccessTokenGuard,
     validatePostExists,
     pageNumberValidation,
     getCommentsByPostIdController,

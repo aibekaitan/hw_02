@@ -15,7 +15,7 @@ export const usersRepository = {
     return isDel.deletedCount === 1;
   },
   async findById(id: string): Promise<WithId<User> | null> {
-    return UserModel.findById(id).select('-_id -__v').lean();
+    return UserModel.findById(id).select('-__v').lean();
   },
   async updateRefreshToken(userId: string, token: string): Promise<void> {
     await UserModel.updateOne(
@@ -29,7 +29,7 @@ export const usersRepository = {
     return UserModel.findOne({
       'emailConfirmation.confirmationCode': emailConfirmationCode,
     })
-      .select('-_id -__v')
+      .select('-__v')
       .lean();
   },
   async findUserByPasswordRecoveryCode(
@@ -38,14 +38,14 @@ export const usersRepository = {
     return UserModel.findOne({
       passwordRecoveryCode: passwordRecoveryCode,
     })
-      .select('-_id -__v')
+      .select('-__v')
       .lean();
   },
   async findByLoginOrEmail(loginOrEmail: string): Promise<WithId<User> | null> {
     return UserModel.findOne({
       $or: [{ email: loginOrEmail }, { login: loginOrEmail }],
     })
-      .select('-_id -__v')
+      .select('-__v')
       .lean();
   },
   async updateConfirmation(_id: ObjectId): Promise<UpdateResult<User> | null> {
