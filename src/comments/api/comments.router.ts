@@ -51,7 +51,7 @@ commentsRouter.put(
 
 commentsRouter.put(
   '/:id/like-status',
-  accessTokenGuard,
+  // accessTokenGuard,
   commentExistMiddleware,
   commentOwnerMiddleware,
   bodyValidation,

@@ -8,13 +8,19 @@ export const createCommentController = async (req: Request, res: Response) => {
     res.sendStatus(401);
     return;
   }
-  const comment = await postsRepository.createComment(
+
+  const currentUserId = req.user.id;
+
+  const createdComment = await postsRepository.createComment(
     req.body,
     req.params.id,
-    req.user.id,
+    currentUserId,
   );
-  postsQwRepository._getInViewComment(comment);
-  res
-    .status(HttpStatus.Created)
-    .send(postsQwRepository._getInViewComment(comment));
+
+  const viewModel = await postsQwRepository._getInViewComment(
+    createdComment,
+    currentUserId,
+  );
+
+  res.status(HttpStatus.Created).json(viewModel);
 };
