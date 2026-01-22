@@ -34,7 +34,8 @@ export const postsRepository = {
       .sort({ [sortBy]: sortDirection })
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
-      .select('-_id -__v');
+      .select('-_id -__v')
+      .lean();
     const mappedBlogs = mapToPostsOutput(items);
     return {
       pagesCount: Math.ceil(totalCount / pageSize),
@@ -46,7 +47,7 @@ export const postsRepository = {
     // return postsCollection.find({}).toArray();
   },
   async findById(id: string): Promise<Post | null> {
-    return PostModel.findOne({ id }).select('-_id -__v');
+    return PostModel.findOne({ id }).select('-_id -__v').lean();
   },
   async create(dto: PostInputModel, blogName: string): Promise<Post> {
     const createdAt = new Date();

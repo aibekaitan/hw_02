@@ -7,10 +7,10 @@ export const securityDevicesRepository = {
   async findAllByUserId(userId: string): Promise<DeviceDBWithId[]> {
     return DeviceModel.find({ userId })
       .sort({ lastActiveDate: -1 })
-      .select('-_id -__v');
+      .select('-__v');
   },
   async findByDeviceId(deviceId: string): Promise<DeviceDBWithId | null> {
-    return DeviceModel.findOne({ deviceId }).select('-_id -__v');
+    return DeviceModel.findOne({ deviceId }).select('-__v');
   },
   async findByUserIdAndDeviceId(
     userId: string,
@@ -38,7 +38,9 @@ export const securityDevicesRepository = {
         new: true,
         projection: { _id: 0, __v: 0 },
       },
-    );
+    )
+      .select('-__v')
+      .lean();
 
     return result;
   },

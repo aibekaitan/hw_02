@@ -68,7 +68,8 @@ export const blogsRepository = {
       .sort({ [sortBy]: sortDirection })
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
-      .select('-_id -__v');
+      .select('-_id -__v')
+      .lean();
     const mappedBlogs = mapToPostsOutput(items);
     return {
       pagesCount: Math.ceil(totalCount / pageSize),
