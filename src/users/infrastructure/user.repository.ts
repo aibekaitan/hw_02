@@ -28,7 +28,9 @@ export const usersRepository = {
   ): Promise<WithId<User> | null> {
     return UserModel.findOne({
       'emailConfirmation.confirmationCode': emailConfirmationCode,
-    }).select('-_id -__v');
+    })
+      .select('-_id -__v')
+      .lean();
   },
   async findUserByPasswordRecoveryCode(
     passwordRecoveryCode: string,

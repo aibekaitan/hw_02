@@ -56,11 +56,11 @@ export const usersQwRepository = {
     };
   },
   async findById(id: string): Promise<IUserView | null> {
-    const user = await UserModel.findOne({ _id: new ObjectId(id) });
+    const user = await UserModel.findOne({ _id: new ObjectId(id) }).lean();
     return user ? this._getInView(user) : null;
   },
   async findById2(id: string): Promise<IUserView2 | null> {
-    const user = await UserModel.findOne({ _id: new ObjectId(id) });
+    const user = await UserModel.findOne({ _id: new ObjectId(id) }).lean();
     return user ? this._getInView2(user) : null;
   },
   _getInView(user: WithId<IUserDB>): IUserView {
