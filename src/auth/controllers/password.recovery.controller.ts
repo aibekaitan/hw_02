@@ -5,10 +5,9 @@ import { randomUUID } from 'crypto';
 import { nodemailerService } from '../adapters/nodemailer.service';
 import { emailExamples } from '../adapters/emailExamples';
 
-export const passwordRecoveryMiddleware = async (
+export const passwordRecoveryController = async (
   req: Request,
   res: Response,
-  next: NextFunction,
 ) => {
   const { email } = req.body;
 
@@ -30,6 +29,4 @@ export const passwordRecoveryMiddleware = async (
   );
 
   res.sendStatus(HttpStatuses.NoContent);
-
-  next();
 };

@@ -5,11 +5,7 @@ import { randomUUID } from 'crypto';
 import { nodemailerService } from '../adapters/nodemailer.service';
 import { emailExamples } from '../adapters/emailExamples';
 
-export const emailResendingMiddleware = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const emailResendingController = async (req: Request, res: Response) => {
   const { email } = req.body;
 
   const user = await usersRepository.findByLoginOrEmail(email);
@@ -38,6 +34,4 @@ export const emailResendingMiddleware = async (
   );
 
   res.sendStatus(HttpStatuses.NoContent);
-
-  next();
 };

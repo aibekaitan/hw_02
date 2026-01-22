@@ -4,18 +4,13 @@ import { ResultStatus } from '../../common/result/resultCode';
 import { resultCodeToHttpException } from '../../common/result/resultCodeToHttpException';
 import { HttpStatuses } from '../../common/types/httpStatuses';
 
-export const refreshTokenMiddleware = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  const refreshToken = req.cookies.refreshToken;
+export const loginUserController = async (req: Request, res: Response) => {
+  const { loginOrEmail, password } = req.body;
 
-  if (!refreshToken) {
-    return res.sendStatus(HttpStatuses.Unauthorized);
-  }
+  const ip = req.ip || 'unknown';
+  const title = req.headers['user-agent'] || 'Unknown device';
 
-  const result = await authService.refreshTokens(refreshToken);
+  const result = await authService.loginUser(loginOrEmail, password, ip, title);
 
   if (result.status !== ResultStatus.Success) {
     return res
@@ -23,15 +18,13 @@ export const refreshTokenMiddleware = async (
       .json({ errorsMessages: result.extensions ?? [] });
   }
 
-  const { accessToken, refreshToken: newRefreshToken } = result.data!;
+  const { accessToken, refreshToken } = result.data!;
 
-  res.cookie('refreshToken', newRefreshToken, {
+  res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
     secure: true,
     sameSite: 'strict',
   });
 
   res.status(HttpStatuses.Success).json({ accessToken });
-
-  next();
 };

@@ -4,10 +4,9 @@ import { ResultStatus } from '../../common/result/resultCode';
 import { resultCodeToHttpException } from '../../common/result/resultCodeToHttpException';
 import { HttpStatuses } from '../../common/types/httpStatuses';
 
-export const registrationConfimationMiddleware = async (
+export const registrationConfirmationController = async (
   req: Request,
   res: Response,
-  next: NextFunction,
 ) => {
   const { code } = req.body;
 
@@ -20,6 +19,4 @@ export const registrationConfimationMiddleware = async (
   }
 
   res.sendStatus(HttpStatuses.NoContent);
-
-  next();
 };

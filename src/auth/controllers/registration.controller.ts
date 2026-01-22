@@ -4,11 +4,7 @@ import { ResultStatus } from '../../common/result/resultCode';
 import { resultCodeToHttpException } from '../../common/result/resultCodeToHttpException';
 import { HttpStatuses } from '../../common/types/httpStatuses';
 
-export const registrationMiddleware = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const registrationController = async (req: Request, res: Response) => {
   const { login, email, password } = req.body;
 
   const result = await authService.registerUser(login, password, email);
@@ -20,6 +16,4 @@ export const registrationMiddleware = async (
   }
 
   res.sendStatus(HttpStatuses.NoContent);
-
-  next();
 };

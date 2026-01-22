@@ -4,11 +4,7 @@ import { ResultStatus } from '../../common/result/resultCode';
 import { resultCodeToHttpException } from '../../common/result/resultCodeToHttpException';
 import { HttpStatuses } from '../../common/types/httpStatuses';
 
-export const newPasswordMiddleware = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const newPasswordController = async (req: Request, res: Response) => {
   const { recoveryCode, newPassword } = req.body;
 
   const result = await authService.changePassword(recoveryCode, newPassword);
@@ -20,6 +16,4 @@ export const newPasswordMiddleware = async (
   }
 
   res.sendStatus(HttpStatuses.NoContent);
-
-  next();
 };

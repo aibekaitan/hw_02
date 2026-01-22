@@ -3,11 +3,7 @@ import { HttpStatuses } from '../../common/types/httpStatuses';
 import { jwtService } from '../adapters/jwt.service';
 import { securityDevicesRepository } from '../../security-devices/infrastructure/security-devices.repository';
 
-export const logoutMiddleware = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const logoutController = async (req: Request, res: Response) => {
   const refreshToken = req.cookies.refreshToken;
   if (!refreshToken) {
     return res.sendStatus(HttpStatuses.Unauthorized);
@@ -27,6 +23,4 @@ export const logoutMiddleware = async (
   });
 
   res.sendStatus(HttpStatuses.NoContent);
-
-  next();
 };
