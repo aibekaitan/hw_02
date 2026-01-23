@@ -7,9 +7,9 @@ import { bodyValidation } from './middlewares/body.validation';
 import { inputValidation } from '../../common/validation/input.validation';
 import { commentExistMiddleware } from './middlewares/comment.exist.middleware';
 import { commentOwnerMiddleware } from './middlewares/comment.owner.middleware';
-import { objectIdValidation } from './middlewares/objectId.validation.middleware';
 import { postsQwRepository } from '../../posts/repositories/post.query.repository';
 import { optionalAccessTokenGuard } from '../../auth/api/guards/optional.access.token.guard';
+import { likeStatusValidation } from './middlewares/like.status.validaton';
 
 export const commentsRouter = Router();
 
@@ -53,9 +53,10 @@ commentsRouter.put(
   '/:id/like-status',
   accessTokenGuard,
   commentExistMiddleware,
+  likeStatusValidation,
   // commentOwnerMiddleware,
   // bodyValidation,
-  // inputValidation,
+  inputValidation,
   async (req: Request, res: Response) => {
     const userId = req.user!.id;
     await commentsService.setLikeStatus(
