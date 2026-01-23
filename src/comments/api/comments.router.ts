@@ -51,9 +51,9 @@ commentsRouter.put(
 
 commentsRouter.put(
   '/:id/like-status',
-  // accessTokenGuard,
+  accessTokenGuard,
   commentExistMiddleware,
-  commentOwnerMiddleware,
+  // commentOwnerMiddleware,
   bodyValidation,
   inputValidation,
   async (req: Request, res: Response) => {
