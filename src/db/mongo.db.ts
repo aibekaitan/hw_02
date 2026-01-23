@@ -7,12 +7,10 @@ const DRIVER_COLLECTION_NAME = 'drivers';
 export let client: MongoClient;
 export let driverCollection: Collection<Driver>;
 
-// Подключения к бд
 export async function runDB(url: string): Promise<void> {
   client = new MongoClient(url);
   const db: Db = client.db(SETTINGS.DB_NAME);
 
-  //Инициализация коллекций
   driverCollection = db.collection<Driver>(DRIVER_COLLECTION_NAME);
 
   try {
