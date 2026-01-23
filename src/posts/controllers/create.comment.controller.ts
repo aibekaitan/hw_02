@@ -22,5 +22,5 @@ export const createCommentController = async (req: Request, res: Response) => {
     currentUserId,
   );
 
-  res.status(HttpStatus.Created).json(viewModel);
+  res.status(HttpStatus.Created).send(viewModel);
 };
