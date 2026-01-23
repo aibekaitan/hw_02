@@ -22,7 +22,7 @@ commentsRouter.get('/:id', optionalAccessTokenGuard, async (req, res) => {
   }
   res
     .status(200)
-    .send(postsQwRepository._getInViewComment(comment, currentUserId));
+    .send(await postsQwRepository._getInViewComment(comment, currentUserId));
 });
 
 commentsRouter.delete(
