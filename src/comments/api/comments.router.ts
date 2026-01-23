@@ -54,8 +54,8 @@ commentsRouter.put(
   accessTokenGuard,
   commentExistMiddleware,
   // commentOwnerMiddleware,
-  bodyValidation,
-  inputValidation,
+  // bodyValidation,
+  // inputValidation,
   async (req: Request, res: Response) => {
     const userId = req.user!.id;
     await commentsService.setLikeStatus(
