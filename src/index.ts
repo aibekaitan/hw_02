@@ -21,6 +21,7 @@ const bootstrap = async () => {
   //   client.db('my_database').collection('security-devices'),
   // );
   //
+  //
   app.listen(PORT, () => {
     console.log(`Example app listening on port ${PORT}`);
   });
