@@ -1,6 +1,6 @@
 import { Post } from '../types/post';
 // import { commentsCollection, postsCollection } from '../../db/collections';
-import { DeleteResult, ObjectId, UpdateResult, WithId } from 'mongodb';
+import { DeleteResult, UpdateResult } from 'mongodb';
 import { PostInputModel } from '../dto/post.input';
 import { PostPaginator } from '../types/paginator';
 import { mapToPostsOutput } from '../mappers/map-post-to-output';
@@ -11,6 +11,7 @@ import {
 import { usersRepository } from '../../users/infrastructure/user.repository';
 import { PostModel } from '../../models/post.model';
 import { CommentModel } from '../../models/comment.model';
+import { LikeStatus } from '../../models/like.model';
 
 export const postsRepository = {
   async findAll(params: {
@@ -59,6 +60,12 @@ export const postsRepository = {
       blogId: dto.blogId,
       blogName,
       createdAt: createdAt.toISOString(),
+      extendedLikesInfo: {
+        likesCount: 0,
+        dislikesCount: 0,
+        myStatus: LikeStatus.None,
+        newestLikes: null,
+      },
     };
     await PostModel.create(post);
     return post;
