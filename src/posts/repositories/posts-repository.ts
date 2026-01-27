@@ -11,7 +11,7 @@ import {
 import { usersRepository } from '../../users/infrastructure/user.repository';
 import { PostModel } from '../../models/post.model';
 import { CommentModel } from '../../models/comment.model';
-import { LikeStatus } from '../../models/like.model';
+import { LikeModel, LikeStatus } from '../../models/like.model';
 
 export const postsRepository = {
   async findAll(params: {
@@ -38,6 +38,7 @@ export const postsRepository = {
       .select('-__v')
       .lean();
     const mappedBlogs = mapToPostsOutput(items);
+
     return {
       pagesCount: Math.ceil(totalCount / pageSize),
       page: pageNumber,
@@ -64,7 +65,7 @@ export const postsRepository = {
         likesCount: 0,
         dislikesCount: 0,
         myStatus: LikeStatus.None,
-        newestLikes: null,
+        newestLikes: [],
       },
     };
     await PostModel.create(post);
@@ -106,5 +107,93 @@ export const postsRepository = {
   },
   async delete(id: string): Promise<DeleteResult> {
     return PostModel.deleteOne({ id });
+  },
+  async setLikeStatus(postId: string, userId: string, likeStatus: LikeStatus) {
+    const user = await usersRepository.findById(userId);
+    if (!user) {
+      throw new Error(`User with id ${userId} not found`);
+    }
+
+    const likeDoc = await LikeModel.findOne({
+      parentId: postId,
+      parentType: 'Post',
+      authorId: userId,
+    }).lean();
+
+    const prevStatus = likeDoc?.status ?? LikeStatus.None;
+
+    if (prevStatus === likeStatus) {
+      return;
+    }
+
+    const postUpdate: any = {};
+
+    if (prevStatus === LikeStatus.Like) {
+      postUpdate.$inc = {
+        ...(postUpdate.$inc || {}),
+        'extendedLikesInfo.likesCount': -1,
+      };
+      postUpdate.$pull = {
+        'extendedLikesInfo.newestLikes': { userId: userId },
+      };
+    } else if (prevStatus === LikeStatus.Dislike) {
+      postUpdate.$inc = {
+        ...(postUpdate.$inc || {}),
+        'extendedLikesInfo.dislikesCount': -1,
+      };
+    }
+
+    if (likeStatus === LikeStatus.Like) {
+      postUpdate.$inc = {
+        ...(postUpdate.$inc || {}),
+        'extendedLikesInfo.likesCount': 1,
+      };
+      postUpdate.$push = {
+        'extendedLikesInfo.newestLikes': {
+          $each: [
+            {
+              addedAt: new Date().toISOString(),
+              userId: userId,
+              login: user.login,
+            },
+          ],
+          $slice: -3,
+        },
+      };
+    } else if (likeStatus === LikeStatus.Dislike) {
+      postUpdate.$inc = {
+        ...(postUpdate.$inc || {}),
+        'extendedLikesInfo.dislikesCount': 1,
+      };
+    }
+
+    if (Object.keys(postUpdate).length > 0) {
+      await PostModel.updateOne({ id: postId }, postUpdate);
+    }
+
+    if (likeStatus === LikeStatus.None) {
+      if (likeDoc) {
+        await LikeModel.deleteOne({
+          parentId: postId,
+          parentType: 'Post',
+          authorId: userId,
+        });
+      }
+    } else {
+      await LikeModel.updateOne(
+        {
+          parentId: postId,
+          parentType: 'Post',
+          authorId: userId,
+        },
+        {
+          $set: {
+            status: likeStatus,
+            createdAt: new Date(),
+          },
+        },
+        { upsert: true },
+      );
+    }
   },
 };

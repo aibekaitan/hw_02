@@ -17,6 +17,8 @@ import { getCommentsByPostIdController } from '../controllers/get.all.comments.b
 import { updatePostController } from '../controllers/update.post.controller';
 import { deletePostController } from '../controllers/delete.post.controller';
 import { optionalAccessTokenGuard } from '../../auth/api/guards/optional.access.token.guard';
+import { likeStatusValidation } from '../../comments/api/middlewares/like.status.validaton';
+import { updateLikeStatusOfPostController } from '../controllers/update.like.status.of.post.controller';
 
 export const postsRouter = Router();
 
@@ -51,4 +53,12 @@ postsRouter
     validatePostInput,
     updatePostController,
   )
-  .delete('/:id', superAdminGuardMiddleware, deletePostController);
+  .delete('/:id', superAdminGuardMiddleware, deletePostController)
+  .put(
+    '/:id/like-status',
+    accessTokenGuard,
+    validatePostExists,
+    likeStatusValidation,
+    inputValidation,
+    updateLikeStatusOfPostController,
+  );

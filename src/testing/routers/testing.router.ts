@@ -7,6 +7,7 @@ import { UserModel } from '../../models/user.model';
 import { CommentModel } from '../../models/comment.model';
 import { DeviceModel } from '../../models/security.devices.model';
 import { RequestLogModel } from '../../models/request.logs.model';
+import { LikeModel } from '../../models/like.model';
 // import {
 //   blogsCollection,
 //   commentsCollection,
@@ -31,6 +32,7 @@ testingRouter.delete('/all-data', async (req: Request, res: Response) => {
       CommentModel.deleteMany({}),
       DeviceModel.deleteMany({}),
       RequestLogModel.deleteMany({}),
+      LikeModel.deleteMany({}),
     ]);
 
     res.sendStatus(HttpStatus.NoContent);
