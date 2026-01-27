@@ -6,7 +6,7 @@ import { postInputValidation } from '../validation/PostInputDtoValidation';
 import { blogsRepository } from '../../blogs/repositories/blogs-repository';
 
 export async function postsMiddlewares(req: Request, res: Response) {
-  const post = await postsRepository.findById(req.params.id);
+  const post = await postsRepository.findById(req.params.id, req.user?.id);
   if (!post) {
     res
       .status(HttpStatus.NotFound)

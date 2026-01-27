@@ -1,13 +1,36 @@
-import { Post } from '../types/post';
-import { WithId } from 'mongodb';
+// mappers/map-post-to-output.ts
+import { Post, PostDB } from '../types/post'; // твои интерфейсы
+import { LikeStatus } from '../../models/like.model';
 
-export const mapToPostOutput = (post: Post) => {
-  // @ts-ignore
-  const { _id, ...rest } = post;
-  return rest;
+export const mapToPostOutput = (
+  dbPost: PostDB,
+  currentUserId?: string,
+): Post => {
+  let myStatus = LikeStatus.None;
+
+  const newestLikes = dbPost.extendedLikesInfo?.newestLikes || [];
+  const reversedLikes = [...newestLikes].reverse();
+
+  return {
+    id: dbPost.id,
+    title: dbPost.title,
+    shortDescription: dbPost.shortDescription,
+    content: dbPost.content,
+    blogId: dbPost.blogId,
+    blogName: dbPost.blogName,
+    createdAt: dbPost.createdAt,
+    extendedLikesInfo: {
+      likesCount: dbPost.extendedLikesInfo.likesCount,
+      dislikesCount: dbPost.extendedLikesInfo.dislikesCount,
+      myStatus,
+      newestLikes: reversedLikes,
+    },
+  };
 };
 
-export const mapToPostsOutput = (posts: WithId<Post>[]): Post[] => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  return posts.map(({ _id, ...rest }) => rest);
+export const mapToPostsOutput = (
+  dbPosts: PostDB[],
+  currentUserId?: string,
+): Post[] => {
+  return dbPosts.map((post) => mapToPostOutput(post, currentUserId));
 };

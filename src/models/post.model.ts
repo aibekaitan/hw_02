@@ -13,12 +13,31 @@ export interface IPost extends Document {
   extendedLikesInfo: {
     likesCount: number;
     dislikesCount: number;
+    newestLikes: Array<{
+      addedAt: string;
+      userId: string;
+      login: string;
+    }>;
+  };
+}
+
+export interface PostApi {
+  id: string;
+  title: string;
+  shortDescription: string;
+  content: string;
+  blogId: string;
+  blogName: string;
+  createdAt: string;
+  extendedLikesInfo: {
+    likesCount: number;
+    dislikesCount: number;
     myStatus: LikeStatus;
     newestLikes: Array<{
       addedAt: string;
-      userId: string | null;
-      login: string | null;
-    }> | null;
+      userId: string;
+      login: string;
+    }>;
   };
 }
 
@@ -31,39 +50,29 @@ const postSchema = new Schema<IPost>(
     blogId: { type: String, required: true },
     blogName: { type: String, required: true },
     createdAt: { type: String, required: true },
+
     extendedLikesInfo: {
-      type: {
-        likesCount: { type: Number, default: 0, min: 0 },
-        dislikesCount: { type: Number, default: 0, min: 0 },
-        myStatus: {
-          type: String,
-          enum: Object.values(LikeStatus),
-          default: LikeStatus.None,
-          required: true,
-        },
-        newestLikes: {
-          type: [
-            {
-              addedAt: { type: String, required: true },
-              userId: { type: String, default: null },
-              login: { type: String, default: null },
-              _id: false,
-            },
-          ],
-          default: null,
-        },
+      likesCount: { type: Number, default: 0, min: 0 },
+      dislikesCount: { type: Number, default: 0, min: 0 },
+
+      newestLikes: {
+        type: [
+          {
+            addedAt: { type: String, required: true },
+            userId: { type: String, required: true },
+            login: { type: String, required: true },
+            _id: false,
+          },
+        ],
+        default: [],
       },
-      default: () => ({
-        likesCount: 0,
-        dislikesCount: 0,
-        myStatus: LikeStatus.None,
-        newestLikes: null,
-      }),
+
       _id: false,
     },
   },
   {
     versionKey: false,
+    timestamps: false,
   },
 );
 

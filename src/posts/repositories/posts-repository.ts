@@ -1,4 +1,4 @@
-import { Post } from '../types/post';
+import { Post, PostDB } from '../types/post';
 // import { commentsCollection, postsCollection } from '../../db/collections';
 import { DeleteResult, UpdateResult } from 'mongodb';
 import { PostInputModel } from '../dto/post.input';
@@ -14,42 +14,116 @@ import { CommentModel } from '../../models/comment.model';
 import { LikeModel, LikeStatus } from '../../models/like.model';
 
 export const postsRepository = {
-  async findAll(params: {
-    pageNumber: number;
-    pageSize: number;
-    sortBy: string;
-    sortDirection: string;
-  }): Promise<PostPaginator> {
+  async findAll(
+    params: {
+      pageNumber: number;
+      pageSize: number;
+      sortBy: string;
+      sortDirection: string;
+    },
+    currentUserId?: string,
+  ): Promise<PostPaginator> {
     const pageNumber = params.pageNumber;
     const pageSize = params.pageSize;
     const sortBy = params.sortBy;
     const sortDirection = params.sortDirection === 'asc' ? 1 : -1;
 
-    // const filter = params?.searchNameTerm
-    //   ? { name: { $regex: params.searchNameTerm, $options: 'i' } } // регистронезависимый поиск
-    //   : {};
-
     const totalCount = await PostModel.countDocuments();
 
-    const items = await PostModel.find({})
+    const dbItems = await PostModel.find({})
       .sort({ [sortBy]: sortDirection })
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
       .select('-__v')
       .lean();
-    const mappedBlogs = mapToPostsOutput(items);
+
+    const userLikesMap = new Map<string, LikeStatus>();
+    if (currentUserId) {
+      const userLikes = await LikeModel.find({
+        parentType: 'Post',
+        authorId: currentUserId,
+      })
+        .lean()
+        .select('parentId status');
+
+      userLikes.forEach((like) => {
+        userLikesMap.set(like.parentId, like.status);
+      });
+    }
+
+    const mappedItems = dbItems.map((post) => {
+      const extendedLikesInfo = post.extendedLikesInfo || {
+        likesCount: 0,
+        dislikesCount: 0,
+        newestLikes: [],
+      };
+
+      const myStatus = userLikesMap.get(post.id) ?? LikeStatus.None;
+
+      const newestLikes = extendedLikesInfo.newestLikes || [];
+      const reversedLikes = [...newestLikes].reverse();
+
+      return {
+        ...post,
+        extendedLikesInfo: {
+          likesCount: extendedLikesInfo.likesCount,
+          dislikesCount: extendedLikesInfo.dislikesCount,
+          myStatus,
+          newestLikes: reversedLikes,
+        },
+      };
+    });
 
     return {
       pagesCount: Math.ceil(totalCount / pageSize),
       page: pageNumber,
       pageSize,
       totalCount,
-      items: mappedBlogs,
+      items: mappedItems,
     };
-    // return postsCollection.find({}).toArray();
   },
-  async findById(id: string): Promise<Post | null> {
-    return await PostModel.findOne({ id }).select('-__v').lean().exec();
+  async findById(id: string, currentUserId?: string): Promise<Post | null> {
+    const dbPost: PostDB | null = await PostModel.findOne({ id })
+      .select('-__v')
+      .lean()
+      .exec();
+
+    if (!dbPost) {
+      return null;
+    }
+
+    let myStatus = LikeStatus.None;
+
+    if (currentUserId) {
+      const like = await LikeModel.findOne({
+        parentId: id,
+        parentType: 'Post',
+        authorId: currentUserId,
+      }).lean();
+
+      myStatus = like?.status ?? LikeStatus.None;
+    }
+
+    const newestLikes = dbPost.extendedLikesInfo?.newestLikes || [];
+    const reversedLikes = [...newestLikes].reverse();
+
+    const apiPost: Post = {
+      id: dbPost.id,
+      title: dbPost.title,
+      shortDescription: dbPost.shortDescription,
+      content: dbPost.content,
+      blogId: dbPost.blogId,
+      blogName: dbPost.blogName,
+      createdAt: dbPost.createdAt,
+      extendedLikesInfo: {
+        likesCount: dbPost.extendedLikesInfo.likesCount,
+        dislikesCount: dbPost.extendedLikesInfo.dislikesCount,
+        myStatus,
+        newestLikes: reversedLikes,
+      },
+    };
+
+    return apiPost;
   },
   async create(dto: PostInputModel, blogName: string): Promise<Post> {
     const createdAt = new Date();
@@ -157,6 +231,7 @@ export const postsRepository = {
               login: user.login,
             },
           ],
+          $position: 0,
           $slice: -3,
         },
       };

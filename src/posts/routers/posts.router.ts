@@ -23,8 +23,8 @@ import { updateLikeStatusOfPostController } from '../controllers/update.like.sta
 export const postsRouter = Router();
 
 postsRouter
-  .get('', getAllPostsController)
-  .get('/:id', getPostController)
+  .get('', optionalAccessTokenGuard, getAllPostsController)
+  .get('/:id', optionalAccessTokenGuard, getPostController)
   .post(
     '',
     superAdminGuardMiddleware,

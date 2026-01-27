@@ -1,6 +1,8 @@
 import { LikeStatus } from '../../models/like.model';
+import { Types } from 'mongoose';
 
-export type Post = {
+export interface PostDB {
+  _id: Types.ObjectId;
   id: string;
   title: string;
   shortDescription: string;
@@ -8,16 +10,35 @@ export type Post = {
   blogId: string;
   blogName: string;
   createdAt: string;
-  extendedLikesInfo: ExtendedLikesInfoViewModel;
-};
-export type ExtendedLikesInfoViewModel = {
-  likesCount: number;
-  dislikesCount: number;
-  myStatus: LikeStatus;
-  newestLikes: LikeDetailsViewModel[] | null;
-};
-export type LikeDetailsViewModel = {
-  addedAt: string;
-  userId: string | null;
-  login: string | null;
-};
+  extendedLikesInfo: {
+    likesCount: number;
+    dislikesCount: number;
+    myStatus?: LikeStatus;
+    newestLikes: {
+      addedAt: string;
+      userId: string;
+      login: string;
+    }[];
+  };
+  __v?: number;
+}
+
+export interface Post {
+  id: string;
+  title: string;
+  shortDescription: string;
+  content: string;
+  blogId: string;
+  blogName: string;
+  createdAt: string;
+  extendedLikesInfo: {
+    likesCount: number;
+    dislikesCount: number;
+    myStatus: LikeStatus;
+    newestLikes: {
+      addedAt: string;
+      userId: string;
+      login: string;
+    }[];
+  };
+}
