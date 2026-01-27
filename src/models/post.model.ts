@@ -47,6 +47,7 @@ const postSchema = new Schema<IPost>(
               addedAt: { type: String, required: true },
               userId: { type: String, default: null },
               login: { type: String, default: null },
+              _id: false,
             },
           ],
           default: null,
@@ -58,6 +59,7 @@ const postSchema = new Schema<IPost>(
         myStatus: LikeStatus.None,
         newestLikes: null,
       }),
+      _id: false,
     },
   },
   {
