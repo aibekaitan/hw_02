@@ -8,6 +8,7 @@ import { BlogPostInputModel } from '../dto/blogPost.input';
 import { Post } from '../../posts/types/post';
 import { BlogModel } from '../../models/blog.model';
 import { PostModel } from '../../models/post.model';
+import { LikeStatus } from '../../models/like.model';
 // import { blogsCollection, postsCollection } from '../../db/collections';
 
 export const blogsService = {
@@ -65,6 +66,12 @@ export const blogsService = {
       blogId: blogId,
       blogName: blog.name,
       createdAt: createdAt.toISOString(),
+      extendedLikesInfo: {
+        likesCount: 0,
+        dislikesCount: 0,
+        myStatus: LikeStatus.None,
+        newestLikes: null,
+      },
     };
     await PostModel.insertOne(post);
     return post;
