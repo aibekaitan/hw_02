@@ -70,7 +70,7 @@ export const blogsService = {
         likesCount: 0,
         dislikesCount: 0,
         myStatus: LikeStatus.None,
-        newestLikes: null,
+        newestLikes: [],
       },
     };
     await PostModel.insertOne(post);

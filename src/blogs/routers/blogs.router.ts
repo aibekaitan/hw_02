@@ -109,7 +109,7 @@ blogsRouter
         return;
       }
       // await blogsCollection.insertOne(newblog);
-      res.status(HttpStatus.Created).send(mapToPostOutput(newPost));
+      res.status(HttpStatus.Created).send(newPost);
     },
   )
 

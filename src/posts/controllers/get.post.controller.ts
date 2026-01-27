@@ -6,5 +6,5 @@ import { mapToPostOutput } from '../mappers/map-post-to-output';
 export const getPostController = async (req: Request, res: Response) => {
   const post = await postsMiddlewares(req, res);
   if (!post) return;
-  res.status(HttpStatus.Ok).send(mapToPostOutput(post));
+  res.status(HttpStatus.Ok).send(post);
 };
