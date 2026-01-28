@@ -61,7 +61,7 @@ export const postsRepository = {
       const myStatus = userLikesMap.get(post.id) ?? LikeStatus.None;
 
       const newestLikes = extendedLikesInfo.newestLikes || [];
-      const reversedLikes = [...newestLikes].reverse();
+      const reversedLikes = [...newestLikes];
 
       return {
         ...post,
@@ -73,13 +73,17 @@ export const postsRepository = {
         },
       };
     });
+    const finalItems = mappedItems.map((post) => {
+      const { _id, __v, ...cleanPost } = post;
+      return cleanPost;
+    });
 
     return {
       pagesCount: Math.ceil(totalCount / pageSize),
       page: pageNumber,
       pageSize,
       totalCount,
-      items: mappedItems,
+      items: finalItems,
     };
   },
   async findById(id: string, currentUserId?: string): Promise<Post | null> {
@@ -105,7 +109,7 @@ export const postsRepository = {
     }
 
     const newestLikes = dbPost.extendedLikesInfo?.newestLikes || [];
-    const reversedLikes = [...newestLikes].reverse();
+    const reversedLikes = [...newestLikes];
 
     const apiPost: Post = {
       id: dbPost.id,
