@@ -235,7 +235,6 @@ export const postsRepository = {
               login: user.login,
             },
           ],
-          $position: 0,
           $slice: -3,
         },
       };
