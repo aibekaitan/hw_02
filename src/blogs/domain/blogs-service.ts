@@ -32,8 +32,9 @@ export const blogsService = {
       sortBy: string;
       sortDirection: string;
     },
+    currentUserId: string | undefined,
   ): Promise<PostPaginator> {
-    return blogsRepository.findPostsByBlogId(id, params);
+    return blogsRepository.findPostsByBlogId(id, params, currentUserId);
   },
   async create(dto: BlogInputModel): Promise<Blog> {
     const createdAt = new Date();

@@ -8,6 +8,7 @@ import { PostPaginator } from '../../posts/types/paginator';
 import { mapToPostsOutput } from '../../posts/mappers/map-post-to-output';
 import { BlogModel } from '../../models/blog.model';
 import { PostModel } from '../../models/post.model';
+import { LikeModel, LikeStatus } from '../../models/like.model';
 
 export const blogsRepository = {
   async findAllBlogs(params: {
@@ -49,37 +50,79 @@ export const blogsRepository = {
     return BlogModel.findOne({ id });
   },
   async findPostsByBlogId(
-    id: string,
+    blogId: string,
     params: {
       pageNumber: number;
       pageSize: number;
       sortBy: string;
       sortDirection: string;
     },
+    currentUserId?: string,
   ): Promise<PostPaginator> {
     const pageNumber = params.pageNumber;
     const pageSize = params.pageSize;
     const sortBy = params.sortBy;
     const sortDirection = params.sortDirection === 'asc' ? 1 : -1;
 
-    const filter = { blogId: id };
+    const filter = { blogId };
 
     const totalCount = await PostModel.countDocuments(filter);
 
-    const items = await PostModel.find(filter)
+    const dbItems = await PostModel.find(filter)
       .sort({ [sortBy]: sortDirection })
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
       .select('-__v')
       .lean()
       .exec();
-    const mappedBlogs = mapToPostsOutput(items);
+
+    const userLikesMap = new Map<string, LikeStatus>();
+    if (currentUserId) {
+      const userLikes = await LikeModel.find({
+        parentType: 'Post',
+        authorId: currentUserId,
+      })
+        .lean()
+        .select('parentId status');
+
+      userLikes.forEach((like) => userLikesMap.set(like.parentId, like.status));
+    }
+
+    const mappedItems = dbItems.map((post) => {
+      const extendedLikesInfo = post.extendedLikesInfo || {
+        likesCount: 0,
+        dislikesCount: 0,
+        newestLikes: [],
+      };
+
+      const myStatus = userLikesMap.get(post.id) ?? LikeStatus.None;
+
+      const newestLikes = extendedLikesInfo.newestLikes || [];
+
+      const reversedLikes = [...newestLikes].reverse();
+
+      return {
+        ...post,
+        extendedLikesInfo: {
+          likesCount: extendedLikesInfo.likesCount,
+          dislikesCount: extendedLikesInfo.dislikesCount,
+          myStatus,
+          newestLikes: reversedLikes,
+        },
+      };
+    });
+
+    const finalItems = mappedItems.map((post) => {
+      const { _id, __v, ...cleanPost } = post;
+      return cleanPost;
+    });
+
     return {
       pagesCount: Math.ceil(totalCount / pageSize),
       page: pageNumber,
       pageSize,
       totalCount,
-      items: mappedBlogs,
+      items: finalItems,
     };
   },
   async create(blog: Blog): Promise<Blog> {

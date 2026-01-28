@@ -12,6 +12,7 @@ import {
 import { BlogPaginator } from '../types/paginator';
 import { mapToPostOutput } from '../../posts/mappers/map-post-to-output';
 import { validatePostInput } from '../../posts/middlewares/posts-middlewares';
+import { optionalAccessTokenGuard } from '../../auth/api/guards/optional.access.token.guard';
 
 export const blogsRouter = Router({});
 
@@ -41,32 +42,41 @@ blogsRouter
       res.status(HttpStatus.Ok).send(result);
     },
   )
-  .get('/:blogId/posts', async (req: Request, res: Response) => {
-    console.log('Query params:', req.query);
-    console.log('Body:', req.body);
-    const pageNumber = Number(req.query.pageNumber) || 1;
-    const pageSize = Number(req.query.pageSize) || 10;
-    const sortBy = (req.query.sortBy as string) || 'createdAt';
-    const sortDirection =
-      (req.query.sortDirection as string) === 'asc' ? 'asc' : 'desc';
-    const result = await blogsService.findPostsByBlogId(req.params.blogId, {
-      pageNumber,
-      pageSize,
-      sortBy,
-      sortDirection,
-    });
-    if (result.items.length === 0) {
-      res
-        .status(HttpStatus.NotFound)
-        .send(
-          createErrorMessages([
-            { field: 'blogId', message: 'blogId not found' },
-          ]),
-        );
-      return;
-    }
-    res.status(HttpStatus.Ok).send(result);
-  })
+  .get(
+    '/:blogId/posts',
+    optionalAccessTokenGuard,
+    async (req: Request, res: Response) => {
+      console.log('Query params:', req.query);
+      console.log('Body:', req.body);
+      const pageNumber = Number(req.query.pageNumber) || 1;
+      const pageSize = Number(req.query.pageSize) || 10;
+      const sortBy = (req.query.sortBy as string) || 'createdAt';
+      const sortDirection =
+        (req.query.sortDirection as string) === 'asc' ? 'asc' : 'desc';
+      const currentUserId = req.user?.id;
+      const result = await blogsService.findPostsByBlogId(
+        req.params.blogId,
+        {
+          pageNumber,
+          pageSize,
+          sortBy,
+          sortDirection,
+        },
+        currentUserId,
+      );
+      if (result.items.length === 0) {
+        res
+          .status(HttpStatus.NotFound)
+          .send(
+            createErrorMessages([
+              { field: 'blogId', message: 'blogId not found' },
+            ]),
+          );
+        return;
+      }
+      res.status(HttpStatus.Ok).send(result);
+    },
+  )
 
   .get('/:id', async (req: Request, res: Response) => {
     const blog = await blogsMiddlewares(req, res);
