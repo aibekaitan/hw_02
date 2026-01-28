@@ -9,7 +9,7 @@ export const mapToPostOutput = (
   let myStatus = LikeStatus.None;
 
   const newestLikes = dbPost.extendedLikesInfo?.newestLikes || [];
-  const reversedLikes = [...newestLikes];
+  const reversedLikes = [...newestLikes].reverse();
 
   return {
     id: dbPost.id,

@@ -61,7 +61,7 @@ export const postsRepository = {
       const myStatus = userLikesMap.get(post.id) ?? LikeStatus.None;
 
       const newestLikes = extendedLikesInfo.newestLikes || [];
-      const reversedLikes = [...newestLikes];
+      const reversedLikes = [...newestLikes].reverse();
 
       return {
         ...post,
@@ -109,7 +109,7 @@ export const postsRepository = {
     }
 
     const newestLikes = dbPost.extendedLikesInfo?.newestLikes || [];
-    const reversedLikes = [...newestLikes];
+    const reversedLikes = [...newestLikes].reverse();
 
     const apiPost: Post = {
       id: dbPost.id,
