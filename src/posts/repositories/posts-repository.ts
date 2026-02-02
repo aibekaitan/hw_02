@@ -13,7 +13,8 @@ import { PostModel } from '../../models/post.model';
 import { CommentModel } from '../../models/comment.model';
 import { LikeModel, LikeStatus } from '../../models/like.model';
 
-export const postsRepository = {
+export class PostRepository {
+  constructor() {}
   async findAll(
     params: {
       pageNumber: number;
@@ -85,7 +86,7 @@ export const postsRepository = {
       totalCount,
       items: finalItems,
     };
-  },
+  }
   async findById(id: string, currentUserId?: string): Promise<Post | null> {
     const dbPost: PostDB | null = await PostModel.findOne({ id })
       .select('-__v')
@@ -128,7 +129,7 @@ export const postsRepository = {
     };
 
     return apiPost;
-  },
+  }
   async create(dto: PostInputModel, blogName: string): Promise<Post> {
     const createdAt = new Date();
     const post: Post = {
@@ -148,7 +149,7 @@ export const postsRepository = {
     };
     await PostModel.create(post);
     return post;
-  },
+  }
   async createComment(
     dto: CommentInputModel,
     postId: string,
@@ -169,7 +170,7 @@ export const postsRepository = {
     };
     await CommentModel.create(comment);
     return comment;
-  },
+  }
   async update(id: string, dto: PostInputModel): Promise<UpdateResult<Post>> {
     return PostModel.updateOne(
       { id },
@@ -182,10 +183,10 @@ export const postsRepository = {
         },
       },
     );
-  },
+  }
   async delete(id: string): Promise<DeleteResult> {
     return PostModel.deleteOne({ id });
-  },
+  }
   async setLikeStatus(postId: string, userId: string, likeStatus: LikeStatus) {
     const user = await usersRepository.findById(userId);
     if (!user) {
@@ -273,5 +274,6 @@ export const postsRepository = {
         { upsert: true },
       );
     }
-  },
-};
+  }
+}
+export const postRepository = new PostRepository();

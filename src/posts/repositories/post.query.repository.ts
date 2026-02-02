@@ -4,8 +4,10 @@ import { SortQueryFilterType } from '../../common/types/sortQueryFilter.type';
 import { CommentDB, CommentViewModel } from '../../comments/types/comments.dto';
 import { CommentModel } from '../../models/comment.model';
 import { LikeModel, LikeStatus } from '../../models/like.model';
+import { PostService } from '../domain/post.service';
 
-export const postsQwRepository = {
+export class PostQueryRepository {
+  constructor() {}
   async findAllCommentsByPostId(
     postId: string,
     sortQueryDto: SortQueryFilterType,
@@ -35,7 +37,7 @@ export const postsQwRepository = {
       totalCount,
       items,
     };
-  },
+  }
 
   async _getInViewComment(
     comment: CommentDB,
@@ -77,9 +79,9 @@ export const postsQwRepository = {
         myStatus: myLike?.status ?? LikeStatus.None,
       },
     };
-  },
+  }
 
   _checkObjectId(id: string): boolean {
     return ObjectId.isValid(id);
-  },
-};
+  }
+}

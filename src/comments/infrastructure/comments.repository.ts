@@ -10,14 +10,15 @@ import {
 import { CommentModel } from '../../models/comment.model';
 import { LikeModel, LikeStatus } from '../../models/like.model';
 
-export const commentsRepository = {
+export class CommentRepository {
+  constructor() {}
   async delete(id: string): Promise<boolean> {
     const isDel = await CommentModel.deleteOne({ id });
     return isDel.deletedCount === 1;
-  },
+  }
   async findById(id: string): Promise<CommentDB | null> {
     return await CommentModel.findOne({ id }).select('-__v').lean().exec();
-  },
+  }
   async findById2(
     id: string,
     currentUserId?: string,
@@ -58,7 +59,7 @@ export const commentsRepository = {
       ...comment,
       likesInfo,
     };
-  },
+  }
   async update(
     id: string,
     dto: CommentInputModel,
@@ -71,5 +72,30 @@ export const commentsRepository = {
         },
       },
     );
-  },
-};
+  }
+  async setLikeStatus(
+    commentId: string,
+    userId: string,
+    likeStatus: LikeStatus,
+  ) {
+    if (likeStatus === LikeStatus.None) {
+      await LikeModel.deleteOne({
+        parentId: commentId,
+        parentType: 'Comment',
+        authorId: userId,
+      });
+    } else {
+      await LikeModel.updateOne(
+        { parentId: commentId, parentType: 'Comment', authorId: userId },
+        {
+          $set: {
+            status: likeStatus,
+            createdAt: new Date(),
+          },
+        },
+        { upsert: true },
+      );
+    }
+  }
+}
+export const commentRepository = new CommentRepository();

@@ -1,21 +1,8 @@
 import { NextFunction } from 'express';
 import { createErrorMessages } from '../../core/utils/error.utils';
-import { blogsRepository } from '../repositories/blogs-repository';
 import { Request, Response } from 'express';
 import { blogInputValidation } from '../validation/BlogInputDtoValidation';
 import { HttpStatus } from '../../core/types/http-statuses';
-
-export async function blogsMiddlewares(req: Request, res: Response) {
-  const blog = await blogsRepository.findById(req.params.id);
-  if (!blog) {
-    res
-      .status(HttpStatus.NotFound)
-      .send(createErrorMessages([{ field: 'id', message: 'blog not found' }]));
-    return null;
-  }
-
-  return blog;
-}
 
 export const validateBlogInput = (
   req: Request,

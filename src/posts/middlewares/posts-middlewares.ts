@@ -1,20 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
-import { postsRepository } from '../repositories/posts-repository';
 import { createErrorMessages } from '../../core/utils/error.utils';
 import { HttpStatus } from '../../core/types/http-statuses';
 import { postInputValidation } from '../validation/PostInputDtoValidation';
-import { blogsRepository } from '../../blogs/repositories/blogs-repository';
-
-export async function postsMiddlewares(req: Request, res: Response) {
-  const post = await postsRepository.findById(req.params.id, req.user?.id);
-  if (!post) {
-    res
-      .status(HttpStatus.NotFound)
-      .send(createErrorMessages([{ field: 'id', message: 'post not found' }]));
-    return null;
-  }
-  return post;
-}
+import { blogRepository } from '../../blogs/repositories/blogs-repository';
+import { postRepository } from '../repositories/posts-repository';
 
 export const validatePostInput = (
   req: Request,
@@ -34,7 +23,7 @@ export const validateBlogExists = async (
   next: NextFunction,
 ) => {
   const blogId = req.body.blogId;
-  const blog = await blogsRepository.findById(blogId);
+  const blog = await blogRepository.findById(blogId);
 
   if (!blog) {
     res
@@ -56,7 +45,7 @@ export const validatePostExists = async (
   next: NextFunction,
 ) => {
   const postId = req.params.id;
-  const post = await postsRepository.findById(postId);
+  const post = await postRepository.findById(postId);
   if (!post) {
     res.sendStatus(HttpStatus.NotFound); // 404
     return;

@@ -1,5 +1,5 @@
 import { Blog } from '../types/blog';
-import { blogsRepository } from '../repositories/blogs-repository';
+import { BlogRepository } from '../repositories/blogs-repository';
 import { DeleteResult, UpdateResult, WithId } from 'mongodb';
 import { BlogInputModel } from '../dto/blog.input';
 import { BlogPaginator } from '../types/paginator';
@@ -11,7 +11,12 @@ import { PostModel } from '../../models/post.model';
 import { LikeStatus } from '../../models/like.model';
 // import { blogsCollection, postsCollection } from '../../db/collections';
 
-export const blogsService = {
+export class BlogService {
+  private blogRepository: BlogRepository;
+  constructor() {
+    this.blogRepository = new BlogRepository();
+  }
+
   async findAllBlogs(params: {
     pageNumber: number;
     pageSize: number;
@@ -19,11 +24,13 @@ export const blogsService = {
     sortDirection: string;
     searchNameTerm: string | null;
   }): Promise<BlogPaginator> {
-    return blogsRepository.findAllBlogs(params);
-  },
+    return this.blogRepository.findAllBlogs(params);
+  }
+
   async findById(id: string): Promise<WithId<Blog> | null> {
-    return blogsRepository.findById(id);
-  },
+    return this.blogRepository.findById(id);
+  }
+
   async findPostsByBlogId(
     id: string,
     params: {
@@ -34,8 +41,9 @@ export const blogsService = {
     },
     currentUserId: string | undefined,
   ): Promise<PostPaginator> {
-    return blogsRepository.findPostsByBlogId(id, params, currentUserId);
-  },
+    return this.blogRepository.findPostsByBlogId(id, params, currentUserId);
+  }
+
   async create(dto: BlogInputModel): Promise<Blog> {
     const createdAt = new Date();
     const blog: Blog = {
@@ -46,41 +54,22 @@ export const blogsService = {
       createdAt: createdAt.toISOString(),
       isMembership: false,
     };
-    await blogsRepository.create(blog);
+    await this.blogRepository.create(blog);
     return blog;
-  },
+  }
+
   async createByBlogId(
     blogId: string,
     dto: BlogPostInputModel,
   ): Promise<Post | null> {
-    const createdAt = new Date();
-    const filter = { id: blogId };
-    const blog = await BlogModel.findOne(filter);
-    if (!blog) {
-      return null; // роутер вернёт 404
-    }
-    const post: Post = {
-      id: new Date().toISOString(),
-      title: dto.title,
-      shortDescription: dto.shortDescription,
-      content: dto.content,
-      blogId: blogId,
-      blogName: blog.name,
-      createdAt: createdAt.toISOString(),
-      extendedLikesInfo: {
-        likesCount: 0,
-        dislikesCount: 0,
-        myStatus: LikeStatus.None,
-        newestLikes: [],
-      },
-    };
-    await PostModel.insertOne(post);
-    return post;
-  },
+    return this.blogRepository.createPostByBlogId(blogId, dto);
+  }
+
   async update(id: string, dto: BlogInputModel): Promise<UpdateResult<Blog>> {
-    return blogsRepository.update(id, dto);
-  },
+    return this.blogRepository.update(id, dto);
+  }
+
   async delete(id: string): Promise<DeleteResult> {
-    return blogsRepository.delete(id);
-  },
-};
+    return this.blogRepository.delete(id);
+  }
+}

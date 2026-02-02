@@ -9,8 +9,12 @@ import { mapToPostsOutput } from '../../posts/mappers/map-post-to-output';
 import { BlogModel } from '../../models/blog.model';
 import { PostModel } from '../../models/post.model';
 import { LikeModel, LikeStatus } from '../../models/like.model';
+import { BlogService } from '../domain/blogs-service';
+import { BlogPostInputModel } from '../dto/blogPost.input';
+import { Post } from '../../posts/types/post';
 
-export const blogsRepository = {
+export class BlogRepository {
+  constructor() {}
   async findAllBlogs(params: {
     pageNumber: number;
     pageSize: number;
@@ -45,10 +49,10 @@ export const blogsRepository = {
       totalCount,
       items: mappedBlogs,
     };
-  },
+  }
   async findById(id: string): Promise<WithId<Blog> | null> {
     return BlogModel.findOne({ id });
-  },
+  }
   async findPostsByBlogId(
     blogId: string,
     params: {
@@ -124,12 +128,42 @@ export const blogsRepository = {
       totalCount,
       items: finalItems,
     };
-  },
+  }
   async create(blog: Blog): Promise<Blog> {
     // return blogsCollection.insertOne(blog);
     const created = await BlogModel.create(blog);
     return created.toObject({ versionKey: false });
-  },
+  }
+  async createPostByBlogId(
+    blogId: string,
+    dto: BlogPostInputModel,
+  ): Promise<Post | null> {
+    const blog = await BlogModel.findOne({ id: blogId });
+    if (!blog) {
+      return null;
+    }
+
+    const createdAt = new Date().toISOString();
+
+    const post: Post = {
+      id: new Date().toISOString(),
+      title: dto.title,
+      shortDescription: dto.shortDescription,
+      content: dto.content,
+      blogId,
+      blogName: blog.name,
+      createdAt,
+      extendedLikesInfo: {
+        likesCount: 0,
+        dislikesCount: 0,
+        myStatus: LikeStatus.None,
+        newestLikes: [],
+      },
+    };
+
+    await PostModel.insertOne(post);
+    return post;
+  }
   async update(id: string, dto: BlogInputModel): Promise<UpdateResult<Blog>> {
     return BlogModel.updateOne(
       { id },
@@ -141,8 +175,9 @@ export const blogsRepository = {
         },
       },
     );
-  },
+  }
   async delete(id: string): Promise<DeleteResult> {
     return BlogModel.deleteOne({ id });
-  },
-};
+  }
+}
+export const blogRepository = new BlogRepository();
