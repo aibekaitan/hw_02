@@ -149,39 +149,39 @@ blogsRouter
   .get(
     '',
     // paginationAndSortingValidation(),
-    blogControllerInstance.getAllBlogs.bind(BlogController),
+    blogControllerInstance.getAllBlogs.bind(blogControllerInstance),
   )
   .get(
     '/:blogId/posts',
     optionalAccessTokenGuard,
-    blogControllerInstance.getPostsByBlogId.bind(BlogController),
+    blogControllerInstance.getPostsByBlogId.bind(blogControllerInstance),
   )
 
-  .get('/:id', blogControllerInstance.getBlogById.bind(BlogController))
+  .get('/:id', blogControllerInstance.getBlogById.bind(blogControllerInstance))
 
   .post(
     '',
     superAdminGuardMiddleware,
     validateBlogInput,
-    blogControllerInstance.createBlog.bind(BlogController),
+    blogControllerInstance.createBlog.bind(blogControllerInstance),
   )
 
   .post(
     '/:blogId/posts',
     superAdminGuardMiddleware,
     validatePostInput,
-    blogControllerInstance.createPostByBlogId.bind(BlogController),
+    blogControllerInstance.createPostByBlogId.bind(blogControllerInstance),
   )
 
   .put(
     '/:id',
     superAdminGuardMiddleware,
     validateBlogInput,
-    blogControllerInstance.updateBlogById.bind(BlogController),
+    blogControllerInstance.updateBlogById.bind(blogControllerInstance),
   )
 
   .delete(
     '/:id',
     superAdminGuardMiddleware,
-    blogControllerInstance.deleteBlog.bind(BlogController),
+    blogControllerInstance.deleteBlog.bind(blogControllerInstance),
   );

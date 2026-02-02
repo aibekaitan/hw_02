@@ -141,19 +141,19 @@ postsRouter
   .get(
     '',
     optionalAccessTokenGuard,
-    postControllerInstance.getAllPosts.bind(PostController),
+    postControllerInstance.getAllPosts.bind(postControllerInstance),
   )
   .get(
     '/:id',
     optionalAccessTokenGuard,
-    postControllerInstance.getPost.bind(PostController),
+    postControllerInstance.getPost.bind(postControllerInstance),
   )
   .post(
     '',
     superAdminGuardMiddleware,
     validatePostInput,
     validateBlogExists,
-    postControllerInstance.createPostController.bind(PostController),
+    postControllerInstance.createPostController.bind(postControllerInstance),
   )
   .post(
     '/:id/comments',
@@ -161,25 +161,25 @@ postsRouter
     validatePostExists,
     bodyValidation,
     inputValidation,
-    postControllerInstance.createComment.bind(PostController),
+    postControllerInstance.createComment.bind(postControllerInstance),
   )
   .get(
     '/:id/comments',
     optionalAccessTokenGuard,
     validatePostExists,
     pageNumberValidation,
-    postControllerInstance.getCommentsByPostId.bind(PostController),
+    postControllerInstance.getCommentsByPostId.bind(postControllerInstance),
   )
   .put(
     '/:id',
     superAdminGuardMiddleware,
     validatePostInput,
-    postControllerInstance.updatePost.bind(PostController),
+    postControllerInstance.updatePost.bind(postControllerInstance),
   )
   .delete(
     '/:id',
     superAdminGuardMiddleware,
-    postControllerInstance.deletePost.bind(PostController),
+    postControllerInstance.deletePost.bind(postControllerInstance),
   )
   .put(
     '/:id/like-status',
@@ -187,5 +187,5 @@ postsRouter
     validatePostExists,
     likeStatusValidation,
     inputValidation,
-    postControllerInstance.updateLikeStatusOfPost.bind(PostController),
+    postControllerInstance.updateLikeStatusOfPost.bind(postControllerInstance),
   );

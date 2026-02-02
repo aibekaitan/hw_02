@@ -65,7 +65,7 @@ usersRouter.get(
   '/',
   baseAuthGuard,
   pageNumberValidation,
-  userControllerInstance.getAllUsers.bind(UserController),
+  userControllerInstance.getAllUsers.bind(userControllerInstance),
 );
 
 usersRouter.post(
@@ -75,11 +75,11 @@ usersRouter.post(
   loginValidation,
   emailValidation,
   inputValidation,
-  userControllerInstance.createUser.bind(UserController),
+  userControllerInstance.createUser.bind(userControllerInstance),
 );
 
 usersRouter.delete(
   '/:id',
   baseAuthGuard,
-  userControllerInstance.deleteUser.bind(UserController),
+  userControllerInstance.deleteUser.bind(userControllerInstance),
 );
