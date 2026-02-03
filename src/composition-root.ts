@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { AuthService } from './auth/domain/auth.service';
 import { DevicesRepository } from './security-devices/infrastructure/security-devices.repository';
 import { JwtService } from './auth/adapters/jwt.service';
@@ -21,9 +22,10 @@ import { SecurityDevicesController } from './security-devices/api/devices.contro
 import { PostController } from './posts/routers/posts.controller';
 import { CommentController } from './comments/api/comments.controller';
 import { UserController } from './users/api/users.controller';
+import { Container } from 'inversify';
 
 export const securityDevicesRepository = new DevicesRepository();
-const jwtService = new JwtService();
+export const jwtService = new JwtService();
 export const usersRepository = new UserRepository();
 const nodemailerService = new NodemailerService();
 const bcryptService = new BcryptService();
@@ -36,7 +38,17 @@ const authService = new AuthService(
   bcryptService,
   usersQwRepository,
 );
-export const authControllerInstance = new AuthController(authService);
+// export const authControllerInstance = new AuthController(authService);
+
+export const container = new Container();
+container.bind<DevicesRepository>(DevicesRepository).to(DevicesRepository);
+container.bind<JwtService>(JwtService).to(JwtService);
+container.bind<UserRepository>(UserRepository).to(UserRepository);
+container.bind<NodemailerService>(NodemailerService).to(NodemailerService);
+container.bind<BcryptService>(BcryptService).to(BcryptService);
+container.bind<UserQueryRepo>(UserQueryRepo).to(UserQueryRepo);
+container.bind<AuthService>(AuthService).to(AuthService);
+container.bind<AuthController>(AuthController).to(AuthController);
 
 const blogRepository = new BlogRepository();
 const blogService = new BlogService(blogRepository);

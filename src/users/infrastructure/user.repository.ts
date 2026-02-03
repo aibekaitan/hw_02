@@ -4,7 +4,9 @@ import { IUserDB } from '../types/user.db.interface';
 // import { usersCollection } from '../../db/collections';
 import { User } from '../domain/user.entity';
 import { UserModel } from '../../models/user.model';
+import { injectable } from 'inversify';
 
+@injectable()
 export class UserRepository {
   constructor() {}
   async create(user: User): Promise<string> {

@@ -4,9 +4,11 @@ import { IUserDB } from '../types/user.db.interface';
 import { IPagination } from '../../common/types/pagination';
 import { SortQueryFilterType } from '../../common/types/sortQueryFilter.type';
 import { UserModel } from '../../models/user.model';
+import { injectable } from 'inversify';
 // import { db } from "../../db";
 // import { usersCollection } from '../../db/collections';
 
+@injectable()
 export class UserQueryRepo {
   async findAllUsers(
     sortQueryDto: SortQueryFilterType,

@@ -9,7 +9,10 @@ import { requestLoggerAndLimiter } from '../middlewares/rate-limit.middleware';
 import { refreshTokenGuard } from './guards/refresh.token.guard';
 import { existingEmailValidation } from '../../users/api/middlewares/existing.email.validation';
 import { newPasswordValidation } from '../../users/api/middlewares/new.password.validation';
-import { authControllerInstance } from '../../composition-root';
+import { container } from '../../composition-root';
+import { AuthController } from './auth.controller';
+
+const authControllerInstance = container.get(AuthController);
 
 export const authRouter = Router();
 

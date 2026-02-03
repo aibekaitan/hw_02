@@ -3,8 +3,9 @@ import { AuthService } from '../domain/auth.service';
 import { ResultStatus } from '../../common/result/resultCode';
 import { resultCodeToHttpException } from '../../common/result/resultCodeToHttpException';
 import { HttpStatuses } from '../../common/types/httpStatuses';
-import { authControllerInstance } from '../../composition-root';
+import { Container, inject, injectable } from 'inversify';
 
+@injectable()
 export class AuthController {
   constructor(protected authService: AuthService) {}
 

@@ -2,7 +2,9 @@ import { ObjectId, DeleteResult, UpdateResult, WithId } from 'mongodb';
 // import { securityDevicesCollection } from '../../db/collections';
 import { DeviceDB, DeviceDBWithId } from '../types/devices.dto';
 import { DeviceModel } from '../../models/security.devices.model';
+import { injectable } from 'inversify';
 
+@injectable()
 export class DevicesRepository {
   constructor() {}
   async findAllByUserId(userId: string): Promise<DeviceDBWithId[]> {
