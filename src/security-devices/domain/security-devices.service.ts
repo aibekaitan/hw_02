@@ -3,7 +3,8 @@ import { DevicesRepository } from '../infrastructure/security-devices.repository
 import { ServiceResult } from '../../common/result/result.type';
 import { DeviceViewModel } from '../api/models/device.view.model';
 import { SecurityDevicesQueryRepository } from '../infrastructure/security-devices.query.repository';
-
+import { injectable } from 'inversify';
+@injectable()
 export class SecurityDevicesService {
   constructor(
     protected securityDevicesRepository: DevicesRepository,

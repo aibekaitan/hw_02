@@ -7,7 +7,8 @@ import { IUserView } from '../types/user.view.interface';
 import { UsersQueryFieldsType } from '../types/users.queryFields.type';
 import { IPagination } from '../../common/types/pagination';
 import { sortQueryFieldsUtil } from '../../common/utils/sortQueryFields.util';
-
+import { injectable } from 'inversify';
+@injectable()
 export class UserService {
   constructor(
     protected userRepository: UserRepository,

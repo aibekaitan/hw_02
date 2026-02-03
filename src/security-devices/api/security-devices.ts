@@ -1,7 +1,10 @@
 import { Router } from 'express';
 import { refreshTokenGuard } from '../../auth/api/guards/refresh.token.guard';
-import { securityDevicesControllerInstance } from '../../composition-root';
-
+import { SecurityDevicesController } from './devices.controller';
+import { container } from '../../composition-root';
+const securityDevicesControllerInstance = container.get(
+  SecurityDevicesController,
+);
 export const securityDevicesRouter = Router({});
 
 securityDevicesRouter.get(

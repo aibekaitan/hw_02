@@ -6,7 +6,8 @@ import { SortQueryFilterType } from '../../common/types/sortQueryFilter.type';
 import { sortQueryFieldsUtil } from '../../common/utils/sortQueryFields.util';
 import { CommentsQueryFieldsType } from '../types/comments.queryFields.type';
 import { LikeStatus } from '../../models/like.model';
-
+import { injectable } from 'inversify';
+@injectable()
 export class PostService {
   constructor(
     protected postRepository: PostRepository,

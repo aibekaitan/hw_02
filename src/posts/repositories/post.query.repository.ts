@@ -5,7 +5,8 @@ import { CommentDB, CommentViewModel } from '../../comments/types/comments.dto';
 import { CommentModel } from '../../models/comment.model';
 import { LikeModel, LikeStatus } from '../../models/like.model';
 import { PostService } from '../domain/post.service';
-
+import { injectable } from 'inversify';
+@injectable()
 export class PostQueryRepository {
   constructor() {}
   async findAllCommentsByPostId(

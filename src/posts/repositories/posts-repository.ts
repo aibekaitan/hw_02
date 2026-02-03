@@ -10,7 +10,8 @@ import { PostModel } from '../../models/post.model';
 import { CommentModel } from '../../models/comment.model';
 import { LikeModel, LikeStatus } from '../../models/like.model';
 import { UserRepository } from '../../users/infrastructure/user.repository';
-
+import { injectable } from 'inversify';
+@injectable()
 export class PostRepository {
   constructor(protected usersRepository: UserRepository) {}
   async findAll(

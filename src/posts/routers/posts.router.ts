@@ -11,8 +11,9 @@ import { bodyValidation } from '../middlewares/body.validation';
 import { inputValidation } from '../../common/validation/input.validation';
 import { optionalAccessTokenGuard } from '../../auth/api/guards/optional.access.token.guard';
 import { likeStatusValidation } from '../../comments/api/middlewares/like.status.validaton';
-import { postControllerInstance } from '../../composition-root';
-
+import { PostController } from './posts.controller';
+import { container } from '../../composition-root';
+const postControllerInstance = container.get(PostController);
 export const postsRouter = Router();
 
 postsRouter

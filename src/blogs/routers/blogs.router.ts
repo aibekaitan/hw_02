@@ -4,8 +4,10 @@ import { validateBlogInput } from '../middlewares/blogs-middlewares';
 import { validatePostInput } from '../../posts/middlewares/posts-middlewares';
 import { optionalAccessTokenGuard } from '../../auth/api/guards/optional.access.token.guard';
 
-import { blogControllerInstance } from '../../composition-root';
-
+import { container } from '../../composition-root';
+import { AuthController } from '../../auth/api/auth.controller';
+import { BlogController } from './blogs.controller';
+const blogControllerInstance = container.get(BlogController);
 export const blogsRouter = Router({});
 
 // blogs.router.ts

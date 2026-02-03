@@ -5,8 +5,9 @@ import { emailValidation } from './middlewares/email.validation';
 import { inputValidation } from '../../common/validation/input.validation';
 import { passwordValidation } from './middlewares/password.validation';
 import { loginValidation } from './middlewares/login.validation';
-import { userControllerInstance } from '../../composition-root';
-
+import { container } from '../../composition-root';
+import { UserController } from './users.controller';
+const userControllerInstance = container.get(UserController);
 export const usersRouter = Router();
 
 usersRouter.get(

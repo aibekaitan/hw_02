@@ -3,6 +3,7 @@
 import { DeviceViewModel } from '../api/models/device.view.model';
 import { DeviceDBWithId } from '../types/devices.dto';
 import { DeviceModel } from '../../models/security.devices.model';
+import { injectable } from 'inversify';
 
 const mapToViewModel = (device: DeviceDBWithId): DeviceViewModel => ({
   ip: device.ip,
@@ -10,7 +11,7 @@ const mapToViewModel = (device: DeviceDBWithId): DeviceViewModel => ({
   lastActiveDate: device.lastActiveDate.toISOString(),
   deviceId: device.deviceId,
 });
-
+@injectable()
 export class SecurityDevicesQueryRepository {
   constructor() {}
   async findAllByUserId(userId: string): Promise<DeviceViewModel[]> {

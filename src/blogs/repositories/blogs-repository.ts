@@ -12,7 +12,9 @@ import { LikeModel, LikeStatus } from '../../models/like.model';
 import { BlogService } from '../domain/blogs-service';
 import { BlogPostInputModel } from '../dto/blogPost.input';
 import { Post } from '../../posts/types/post';
+import { injectable } from 'inversify';
 
+@injectable()
 export class BlogRepository {
   constructor() {}
   async findAllBlogs(params: {

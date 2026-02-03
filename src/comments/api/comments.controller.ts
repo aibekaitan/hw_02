@@ -1,9 +1,12 @@
 import { Request, Response } from 'express';
 import { HttpStatus } from '../../core/types/http-statuses';
 import { CommentService } from '../domain/comments.service';
-
+import { inject, injectable } from 'inversify';
+@injectable()
 export class CommentController {
-  constructor(protected commentService: CommentService) {}
+  constructor(
+    @inject(CommentService) protected commentService: CommentService,
+  ) {}
   async getCommentById(req: Request, res: Response) {
     const currentUserId = req.user?.id;
 

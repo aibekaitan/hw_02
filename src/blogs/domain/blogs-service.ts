@@ -9,8 +9,9 @@ import { Post } from '../../posts/types/post';
 import { BlogModel } from '../../models/blog.model';
 import { PostModel } from '../../models/post.model';
 import { LikeStatus } from '../../models/like.model';
+import { injectable } from 'inversify';
 // import { blogsCollection, postsCollection } from '../../db/collections';
-
+@injectable()
 export class BlogService {
   constructor(protected blogRepository: BlogRepository) {}
 

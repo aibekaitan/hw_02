@@ -9,7 +9,8 @@ import {
 } from '../types/comments.dto';
 import { CommentModel } from '../../models/comment.model';
 import { LikeModel, LikeStatus } from '../../models/like.model';
-
+import { injectable } from 'inversify';
+@injectable()
 export class CommentRepository {
   constructor() {}
   async delete(id: string): Promise<boolean> {

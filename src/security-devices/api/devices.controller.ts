@@ -8,7 +8,8 @@ import { IdType } from '../../common/types/id';
 import { SecurityDevicesService } from '../domain/security-devices.service';
 import { resultCodeToHttpException } from '../../common/result/resultCodeToHttpException';
 import { ResultStatus } from '../../common/result/resultCode';
-
+import { injectable } from 'inversify';
+@injectable()
 export class SecurityDevicesController {
   constructor(protected securityDevicesService: SecurityDevicesService) {}
   async getDevice(req: RequestWithUserId<IdType>, res: Response) {

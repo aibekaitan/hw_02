@@ -12,7 +12,8 @@ import { CreateUserDto } from '../types/create-user.dto';
 import { HttpStatuses } from '../../common/types/httpStatuses';
 import { IdType } from '../../common/types/id';
 import { ObjectId } from 'mongodb';
-
+import { injectable } from 'inversify';
+@injectable()
 export class UserController {
   constructor(protected userService: UserService) {}
   async getAllUsers(

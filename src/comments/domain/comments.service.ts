@@ -7,7 +7,9 @@ import { UpdateResult, WithId } from 'mongodb';
 import { LikeModel, LikeStatus } from '../../models/like.model';
 import { PostQueryRepository } from '../../posts/repositories/post.query.repository';
 import { CommentRepository } from '../infrastructure/comments.repository';
-
+import { injectable } from 'inversify';
+import { inject } from 'inversify';
+@injectable()
 export class CommentService {
   constructor(
     protected commentRepository: CommentRepository,

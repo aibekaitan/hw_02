@@ -5,7 +5,8 @@ import { createErrorMessages } from '../../core/utils/error.utils';
 import { BlogService } from '../domain/blogs-service';
 import { mapToBlogOutput } from '../mappers/map-blog-to-output';
 import { BlogPaginator } from '../types/paginator';
-
+import { injectable } from 'inversify';
+@injectable()
 export class BlogController {
   constructor(protected blogService: BlogService) {}
   async getAllBlogs(req: Request, res: Response<BlogPaginator>) {

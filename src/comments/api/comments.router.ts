@@ -8,8 +8,11 @@ import { commentExistMiddleware } from './middlewares/comment.exist.middleware';
 import { commentOwnerMiddleware } from './middlewares/comment.owner.middleware';
 import { optionalAccessTokenGuard } from '../../auth/api/guards/optional.access.token.guard';
 import { likeStatusValidation } from './middlewares/like.status.validaton';
-import { commentControllerInstance } from '../../composition-root';
+import { container } from '../../composition-root';
+import { BlogController } from '../../blogs/routers/blogs.controller';
+import { CommentController } from './comments.controller';
 
+const commentControllerInstance = container.get(CommentController);
 export const commentsRouter = Router();
 
 commentsRouter.get(

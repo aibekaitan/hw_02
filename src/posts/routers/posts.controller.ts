@@ -9,7 +9,8 @@ import {
 import { CommentsQueryFieldsType } from '../types/comments.queryFields.type';
 import { IPagination } from '../../common/types/pagination';
 import { CommentViewModel } from '../../comments/types/comments.dto';
-
+import { injectable } from 'inversify';
+@injectable()
 export class PostController {
   constructor(protected postService: PostService) {}
   async getAllPosts(req: Request, res: Response) {

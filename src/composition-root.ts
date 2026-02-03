@@ -27,19 +27,6 @@ import { Container } from 'inversify';
 export const securityDevicesRepository = new DevicesRepository();
 export const jwtService = new JwtService();
 export const usersRepository = new UserRepository();
-const nodemailerService = new NodemailerService();
-const bcryptService = new BcryptService();
-const usersQwRepository = new UserQueryRepo();
-const authService = new AuthService(
-  securityDevicesRepository,
-  jwtService,
-  usersRepository,
-  nodemailerService,
-  bcryptService,
-  usersQwRepository,
-);
-// export const authControllerInstance = new AuthController(authService);
-
 export const container = new Container();
 container.bind<DevicesRepository>(DevicesRepository).to(DevicesRepository);
 container.bind<JwtService>(JwtService).to(JwtService);
@@ -50,38 +37,29 @@ container.bind<UserQueryRepo>(UserQueryRepo).to(UserQueryRepo);
 container.bind<AuthService>(AuthService).to(AuthService);
 container.bind<AuthController>(AuthController).to(AuthController);
 
-const blogRepository = new BlogRepository();
-const blogService = new BlogService(blogRepository);
-export const blogControllerInstance = new BlogController(blogService);
+container.bind<BlogRepository>(BlogRepository).to(BlogRepository);
+container.bind<BlogService>(BlogService).to(BlogService);
+container.bind<BlogController>(BlogController).to(BlogController);
 
-const commentRepository = new CommentRepository();
-const postQueryRepository = new PostQueryRepository();
-const commentService = new CommentService(
-  commentRepository,
-  postQueryRepository,
-);
-export const commentControllerInstance = new CommentController(commentService);
+container.bind<CommentRepository>(CommentRepository).to(CommentRepository);
+container
+  .bind<PostQueryRepository>(PostQueryRepository)
+  .to(PostQueryRepository);
+container.bind<CommentService>(CommentService).to(CommentService);
+container.bind<CommentController>(CommentController).to(CommentController);
+container.bind<PostRepository>(PostRepository).to(PostRepository);
+container.bind<PostService>(PostService).to(PostService);
+container.bind<PostController>(PostController).to(PostController);
+container
+  .bind<SecurityDevicesQueryRepository>(SecurityDevicesQueryRepository)
+  .to(SecurityDevicesQueryRepository);
+container
+  .bind<SecurityDevicesService>(SecurityDevicesService)
+  .to(SecurityDevicesService);
+container
+  .bind<SecurityDevicesController>(SecurityDevicesController)
+  .to(SecurityDevicesController);
+container.bind<UserService>(UserService).to(UserService);
+container.bind<UserController>(UserController).to(UserController);
 
 export const postRepository = new PostRepository(usersRepository);
-// const postQueryRepository = new PostQueryRepository();
-const postService = new PostService(postRepository, postQueryRepository);
-export const postControllerInstance = new PostController(postService);
-
-const securityDevicesQueryRepository = new SecurityDevicesQueryRepository();
-// const securityDevicesRepository = new DevicesRepository();
-const securityDevicesService = new SecurityDevicesService(
-  securityDevicesRepository,
-  securityDevicesQueryRepository,
-);
-export const securityDevicesControllerInstance = new SecurityDevicesController(
-  securityDevicesService,
-);
-
-// const usersQwRepository = new UserQueryRepo();
-// const usersRepository = new UserRepository();
-const userService = new UserService(
-  usersRepository,
-  usersQwRepository,
-  bcryptService,
-);
-export const userControllerInstance = new UserController(userService);
