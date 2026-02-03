@@ -3,7 +3,7 @@ import { createErrorMessages } from '../../core/utils/error.utils';
 import { HttpStatus } from '../../core/types/http-statuses';
 import { postInputValidation } from '../validation/PostInputDtoValidation';
 import { blogRepository } from '../../blogs/repositories/blogs-repository';
-import { postRepository } from '../repositories/posts-repository';
+import { postRepository } from '../../composition-root';
 
 export const validatePostInput = (
   req: Request,

@@ -8,12 +8,10 @@ import { CommentsQueryFieldsType } from '../types/comments.queryFields.type';
 import { LikeStatus } from '../../models/like.model';
 
 export class PostService {
-  private postRepository: PostRepository;
-  private postQwRepository: PostQueryRepository;
-  constructor() {
-    this.postRepository = new PostRepository();
-    this.postQwRepository = new PostQueryRepository();
-  }
+  constructor(
+    protected postRepository: PostRepository,
+    protected postQwRepository: PostQueryRepository,
+  ) {}
   async getAllPosts(query: any, currentUserId: string | undefined) {
     const pageNumber = Number(query.pageNumber) || 1;
     const pageSize = Number(query.pageSize) || 10;

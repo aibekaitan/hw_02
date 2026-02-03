@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { jwtService } from '../../adapters/jwt.service';
-import { securityDevicesRepository } from '../../../security-devices/infrastructure/security-devices.repository';
+import { securityDevicesRepository } from '../../../composition-root';
 
 export const refreshTokenGuard = async (
   req: Request,

@@ -9,12 +9,10 @@ import { PostQueryRepository } from '../../posts/repositories/post.query.reposit
 import { CommentRepository } from '../infrastructure/comments.repository';
 
 export class CommentService {
-  private commentRepository: CommentRepository;
-  private postQueryRepository: PostQueryRepository;
-  constructor() {
-    this.commentRepository = new CommentRepository();
-    this.postQueryRepository = new PostQueryRepository();
-  }
+  constructor(
+    protected commentRepository: CommentRepository,
+    protected postQueryRepository: PostQueryRepository,
+  ) {}
   async getCommentById(commentId: string, currentUserId?: string) {
     const comment = await this.commentRepository.findById(commentId);
     if (!comment) return null;

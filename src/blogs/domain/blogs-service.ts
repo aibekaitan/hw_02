@@ -12,10 +12,7 @@ import { LikeStatus } from '../../models/like.model';
 // import { blogsCollection, postsCollection } from '../../db/collections';
 
 export class BlogService {
-  private blogRepository: BlogRepository;
-  constructor() {
-    this.blogRepository = new BlogRepository();
-  }
+  constructor(protected blogRepository: BlogRepository) {}
 
   async findAllBlogs(params: {
     pageNumber: number;

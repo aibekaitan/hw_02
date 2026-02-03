@@ -1,20 +1,18 @@
 import { Post, PostDB } from '../types/post';
-// import { commentsCollection, postsCollection } from '../../db/collections';
 import { DeleteResult, UpdateResult } from 'mongodb';
 import { PostInputModel } from '../dto/post.input';
 import { PostPaginator } from '../types/paginator';
-import { mapToPostsOutput } from '../mappers/map-post-to-output';
 import {
   CommentDB,
   CommentInputModel,
 } from '../../comments/types/comments.dto';
-import { usersRepository } from '../../users/infrastructure/user.repository';
 import { PostModel } from '../../models/post.model';
 import { CommentModel } from '../../models/comment.model';
 import { LikeModel, LikeStatus } from '../../models/like.model';
+import { UserRepository } from '../../users/infrastructure/user.repository';
 
 export class PostRepository {
-  constructor() {}
+  constructor(protected usersRepository: UserRepository) {}
   async findAll(
     params: {
       pageNumber: number;
@@ -156,7 +154,7 @@ export class PostRepository {
     userId: string,
   ): Promise<CommentDB> {
     const createdAt = new Date();
-    const user = await usersRepository.findById(userId);
+    const user = await this.usersRepository.findById(userId);
 
     const comment: CommentDB = {
       id: new Date().toISOString(),
@@ -188,7 +186,7 @@ export class PostRepository {
     return PostModel.deleteOne({ id });
   }
   async setLikeStatus(postId: string, userId: string, likeStatus: LikeStatus) {
-    const user = await usersRepository.findById(userId);
+    const user = await this.usersRepository.findById(userId);
     if (!user) {
       throw new Error(`User with id ${userId} not found`);
     }
@@ -276,4 +274,3 @@ export class PostRepository {
     }
   }
 }
-export const postRepository = new PostRepository();

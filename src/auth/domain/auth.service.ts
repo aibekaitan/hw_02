@@ -1,38 +1,26 @@
 import { ResultStatus } from '../../common/result/resultCode';
 import { Result } from '../../common/result/result.type';
 import { JwtService, jwtService } from '../adapters/jwt.service';
-import {
-  UserRepository,
-  usersRepository,
-} from '../../users/infrastructure/user.repository';
+import { UserRepository } from '../../users/infrastructure/user.repository';
 import { BcryptService } from '../adapters/bcrypt.service';
 import { IUserDB } from '../../users/types/user.db.interface';
 import { NodemailerService } from '../adapters/nodemailer.service';
 import { emailExamples } from '../adapters/emailExamples';
 import { User } from '../../users/domain/user.entity';
 import { randomUUID } from 'crypto';
-import {
-  DevicesRepository,
-  securityDevicesRepository,
-} from '../../security-devices/infrastructure/security-devices.repository';
+import { DevicesRepository } from '../../security-devices/infrastructure/security-devices.repository';
 import { WithId } from 'mongodb';
 import { UserQueryRepo } from '../../users/infrastructure/user.query.repo';
 
 export class AuthService {
-  private securityDevicesRepository: DevicesRepository;
-  private jwtService: JwtService;
-  private usersRepository: UserRepository;
-  private nodemailerService: NodemailerService;
-  private bcryptService: BcryptService;
-  private usersQwRepository: UserQueryRepo;
-  constructor() {
-    this.securityDevicesRepository = new DevicesRepository();
-    this.jwtService = new JwtService();
-    this.usersRepository = new UserRepository();
-    this.nodemailerService = new NodemailerService();
-    this.bcryptService = new BcryptService();
-    this.usersQwRepository = new UserQueryRepo();
-  }
+  constructor(
+    protected securityDevicesRepository: DevicesRepository,
+    protected jwtService: JwtService,
+    protected usersRepository: UserRepository,
+    protected nodemailerService: NodemailerService,
+    protected bcryptService: BcryptService,
+    protected usersQwRepository: UserQueryRepo,
+  ) {}
 
   async loginUser(
     loginOrEmail: string,

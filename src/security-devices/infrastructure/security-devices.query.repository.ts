@@ -11,7 +11,8 @@ const mapToViewModel = (device: DeviceDBWithId): DeviceViewModel => ({
   deviceId: device.deviceId,
 });
 
-export const securityDevicesQueryRepository = {
+export class SecurityDevicesQueryRepository {
+  constructor() {}
   async findAllByUserId(userId: string): Promise<DeviceViewModel[]> {
     const devices = await DeviceModel.find({ userId })
       .sort({ lastActiveDate: -1 })
@@ -19,14 +20,14 @@ export const securityDevicesQueryRepository = {
       .lean();
 
     return devices.map(mapToViewModel);
-  },
+  }
   async findByDeviceId(deviceId: string): Promise<DeviceViewModel | null> {
     const device = await DeviceModel.findOne({ deviceId }).lean();
     if (!device) return null;
     return mapToViewModel(device);
-  },
+  }
   async existsByDeviceId(deviceId: string): Promise<boolean> {
     const count = await DeviceModel.countDocuments({ deviceId }, { limit: 1 });
     return count > 0;
-  },
-};
+  }
+}

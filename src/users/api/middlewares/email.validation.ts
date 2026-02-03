@@ -1,5 +1,5 @@
 import { body } from 'express-validator';
-import { usersRepository } from '../../infrastructure/user.repository';
+import { usersRepository } from '../../../composition-root';
 
 export const emailValidation = body('email')
   .isString()

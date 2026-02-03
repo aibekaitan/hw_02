@@ -1,7 +1,4 @@
-import {
-  UserRepository,
-  usersRepository,
-} from '../infrastructure/user.repository';
+import { UserRepository } from '../infrastructure/user.repository';
 import { BcryptService } from '../../auth/adapters/bcrypt.service';
 import { IUserDB } from '../types/user.db.interface';
 import { CreateUserDto } from '../types/create-user.dto';
@@ -12,15 +9,11 @@ import { IPagination } from '../../common/types/pagination';
 import { sortQueryFieldsUtil } from '../../common/utils/sortQueryFields.util';
 
 export class UserService {
-  private userRepository: UserRepository;
-  private userQwRepository: UserQueryRepo;
-  private bcryptService: BcryptService;
-
-  constructor() {
-    this.userRepository = new UserRepository();
-    this.userQwRepository = new UserQueryRepo();
-    this.bcryptService = new BcryptService();
-  }
+  constructor(
+    protected userRepository: UserRepository,
+    protected userQwRepository: UserQueryRepo,
+    protected bcryptService: BcryptService,
+  ) {}
 
   async getAllUsers(
     query: UsersQueryFieldsType,
